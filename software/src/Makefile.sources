@@ -1,0 +1,33 @@
+# vim:ts=4
+
+include lib/libusbcc/src/Makefile.sources
+
+TINYIO_HEADERS += $(patsubst %,lib/libusbcc/src/%,$(MULABS_LIBUSBCC_HEADERS))
+
+TINYIO_SOURCES += $(patsubst %,lib/libusbcc/src/%,$(MULABS_LIBUSBCC_SOURCES))
+
+######## /tinyio ########
+
+TINYIO_HEADERS += tinyio/tinyio.h
+
+TINYIO_SOURCES += tinyio/tinyio.cc
+TINYIO_SOURCES += tinyio/gui.cc
+
+################
+
+TINYIO_OBJECTS += $(call mkobjs, $(TINYIO_SOURCES))
+TINYIO_MOCSRCS += $(call mkmocs, $(foreach file, $(TINYIO_MOCHDRS), $(file)))
+TINYIO_MOCOBJS += $(call mkmocobjs, $(TINYIO_MOCSRCS))
+
+HEADERS += $(TINYIO_HEADERS)
+SOURCES += $(TINYIO_SOURCES)
+MOCSRCS += $(TINYIO_MOCSRCS)
+MOCOBJS += $(TINYIO_MOCOBJS)
+
+OBJECTS += $(call mkobjs, $(NODEP_SOURCES))
+OBJECTS += $(call mkobjs, $(SOURCES))
+
+VERSION_FILE := tinyio/config/version.cc
+TARGETS += $(distdir)/tinyio
+LINKEDS += $(distdir)/tinyio
+

@@ -1,0 +1,4 @@
+# vim:ts=4
+
+$(distdir)/tinyio: $(TINYIO_OBJECTS) $(TINYIO_MOCOBJS) $(call mkobjs, $(NODEP_SOURCES))
+

@@ -19,9 +19,11 @@
 #include <string>
 #include <iomanip>
 
-// TinyIO:
+// Lib:
 #include <libusbcc/libusbcc.h>
-#include <tinyio/control_request.h>
+
+// Local:
+#include "tinyio_manager.h"
 
 
 void
@@ -54,38 +56,39 @@ int main (int, char**, char**)
 	using namespace libusb;
 
 	try {
-		libusb::Session usb;
-		for (auto const& descriptor: usb.device_descriptors())
+		tinyio::TinyIOManager tinyio_manager;
+		auto devices = tinyio_manager.find_devices();
+
+		if (devices.empty())
+			std::cout << "No devices found." << std::endl;
+		else
 		{
-			try {
-				constexpr libusb::VendorID kVendorID = 0x16c0;
-				constexpr libusb::ProductID kProductID = 0x05dc;
-				constexpr auto kManufacturer = "mulabs.org";
-				constexpr auto kProduct = "TinyIO";
+			std::cout << "Found " << devices.size() << " device(s):" << std::endl;
 
-				Device device = descriptor.open();
+			for (auto const& device: devices)
+			{
+				tinyio::Interface iface = device.open();
+				std::cout << "  TinyIO version " << iface.release_version_str() << ", S/N: " << iface.serial_number() << std::endl;
 
-				if (device.vendor_id() == kVendorID && device.product_id() == kProductID &&
-					device.manufacturer() == kManufacturer && device.product() == kProduct)
+				if (iface.release_version_str() != "1.0")
 				{
-					std::clog << "Found TinyIO version " << device.release_version_str();
-					if (device.release_version() != 0x0100)
+					std::clog << "    Unsupported version, skipping." << std::endl;
+					continue;
+				}
+				else
+				{
+					iface.reset();
+					for (int z = 0; z < 1000; ++z)
 					{
-						std::clog << " - unsupported version - skipping." << std::endl;
-						continue;
-					}
-					else
-					{
-						std::clog << " - connecting." << std::endl;
-						device.send (libusb::ControlTransfer (static_cast<uint8_t> (tinyio::USBControlRequest::ConfigurePins), 0, 0), 0, { 0xff, 0xff, 0xff });
-						device.send (libusb::ControlTransfer (static_cast<uint8_t> (tinyio::USBControlRequest::SetPins), 0, 0), 0, { 0x55, 0x55, 0x55 });
-						// TODO
+						usleep (500000);
+						for (int i = 0; i < 24; ++i)
+						{
+							iface.configure_pin (i, tinyio::Output);
+							iface.set_pin_level (i, i % 2 == z % 2);
+						}
+						iface.commit();
 					}
 				}
-			}
-			catch (std::exception const& e)
-			{
-				print_exception (e);
 			}
 		}
 	}

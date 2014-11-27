@@ -1,2 +1,4 @@
 /build
 /lib/libusbcc
+Makefile.local
+

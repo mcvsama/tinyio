@@ -14,14 +14,27 @@
 // Standard:
 #include <cstddef>
 #include <cstdlib>
-#include <exception>
-#include <iostream>
-#include <string>
-#include <iomanip>
+#include <utility>
 
 // Lib:
 #include <libusbcc/libusbcc.h>
 
-// TinyIO:
-#include <tinyio/control_request.h>
+// Local:
+#include "tinyio.h"
+
+
+namespace tinyio {
+
+TinyIO::TinyIO (libusb::DeviceDescriptor const& usb_descriptor):
+	_usb_descriptor (usb_descriptor)
+{ }
+
+
+Interface
+TinyIO::open() const
+{
+	return Interface (_usb_descriptor.open());
+}
+
+} // namespace tinyio
 

@@ -11,43 +11,19 @@
  * Visit http://www.gnu.org/licenses/gpl-3.0.html for more information on licensing.
  */
 
-#ifndef TINYIO__TINYIO_H__INCLUDED
-#define TINYIO__TINYIO_H__INCLUDED
+#ifndef TINYIO__EXCEPTION_H__INCLUDED
+#define TINYIO__EXCEPTION_H__INCLUDED
 
 // Standard:
-#include <vector>
-
-// Lib:
-#include <libusbcc/libusbcc.h>
-#include <boost/optional.hpp>
-
-// Local:
-#include "interface.h"
+#include <exception>
 
 
 namespace tinyio {
 
-/**
- * Represents TinyIO device.
- */
-class TinyIO
+class Exception: public std::runtime_error
 {
-  public:
-	// Ctor
-	explicit TinyIO (libusb::DeviceDescriptor const&);
-
-	/**
-	 * Open the device, return the handle.
-	 */
-	Interface
-	open() const;
-
-  private:
-	libusb::DeviceDescriptor _usb_descriptor;
+	using runtime_error::runtime_error;
 };
-
-
-typedef std::vector<TinyIO> TinyIOList;
 
 } // namespace tinyio
 

@@ -11,43 +11,38 @@
  * Visit http://www.gnu.org/licenses/gpl-3.0.html for more information on licensing.
  */
 
-#ifndef TINYIO__TINYIO_H__INCLUDED
-#define TINYIO__TINYIO_H__INCLUDED
-
-// Standard:
-#include <vector>
+#ifndef TINYIO__TINYIO_MANAGER_H__INCLUDED
+#define TINYIO__TINYIO_MANAGER_H__INCLUDED
 
 // Lib:
-#include <libusbcc/libusbcc.h>
 #include <boost/optional.hpp>
 
 // Local:
-#include "interface.h"
+#include "tinyio.h"
 
 
 namespace tinyio {
 
 /**
- * Represents TinyIO device.
+ * Searches for TinyIO devices.
  */
-class TinyIO
+class TinyIOManager
 {
-  public:
-	// Ctor
-	explicit TinyIO (libusb::DeviceDescriptor const&);
+	static constexpr libusb::VendorID	kTinyIOVendorID		= 0x16c0;
+	static constexpr libusb::ProductID	kTinyIOProductID	= 0x05dc;
+	static constexpr auto				kTinyIOManufacturer	= "mulabs.org";
+	static constexpr auto				kTinyIOProduct		= "TinyIO";
 
+  public:
 	/**
-	 * Open the device, return the handle.
+	 * Searches the USB bus for TinyIO devices.
 	 */
-	Interface
-	open() const;
+	TinyIOList
+	find_devices() const;
 
   private:
-	libusb::DeviceDescriptor _usb_descriptor;
+	libusb::Bus _bus;
 };
-
-
-typedef std::vector<TinyIO> TinyIOList;
 
 } // namespace tinyio
 

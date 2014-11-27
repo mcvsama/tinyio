@@ -1,0 +1,2 @@
+SYSFS{idVendor}=="16c0",SYSFS{idProduct}=="05df",SYSFS{manufacturer}=="mulabs.org",SYSFS{product}=="TinyIO", MODE="0660",GROUP="users"
+

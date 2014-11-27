@@ -1,0 +1,5 @@
+Go to the lib directory and clone mulabs-avr into it:
+
+$ cd lib
+$ git clone https://github.com/mcvsama/mulabs-avr.git
+

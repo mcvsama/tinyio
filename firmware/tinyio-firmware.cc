@@ -145,8 +145,10 @@ usbFunctionRead (uint8_t* data, uint8_t len)
 {
 	if (len >= 3)
 	{
-		return 0;
-		// TODO
+		data[0] = port_0_7.read();
+		data[1] = port_15_8.read();
+		data[2] = port_16_23.read();
+		return 3;
 	}
 	else
 		return 0;

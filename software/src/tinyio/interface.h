@@ -74,7 +74,7 @@ class Interface
 	configure_pin (uint8_t pin, PinDirection);
 
 	/**
-	 * Set given pin output state.
+	 * Set given pin output level.
 	 * Nothing is done until commit() is called.
 	 */
 	void
@@ -86,16 +86,35 @@ class Interface
 	void
 	commit();
 
+	/**
+	 * Get all pin levels.
+	 */
+	std::array<bool, kPinsCount>
+	get_pin_levels();
+
   private:
 	/**
-	 * Return vector of bits ready to use in USB control transfer.
+	 * Return vector of bytes ready to use in USB control transfer.
 	 * Middle-byte bits are swapped by this function for device's
 	 * convenience.
 	 * Resulting vector is big-endian.
 	 */
 	template<class T>
 		static std::vector<uint8_t>
-		get_mask (std::array<T, 24> const& bit_array);
+		get_mask (std::array<T, kPinsCount> const& bit_array);
+
+	/**
+	 * Return array of bits obtained from the vector sent
+	 * by device. Middle-byte bits are swapped (again).
+	 */
+	static std::array<bool, kPinsCount>
+	get_bits (std::vector<uint8_t> const& bytes);
+
+	/**
+	 * Reverse order of bits in a byte.
+	 */
+	static void
+	swap_bits (uint8_t&);
 
   private:
 	libusb::Device							_usb_device;

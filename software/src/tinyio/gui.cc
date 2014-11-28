@@ -78,15 +78,37 @@ int main (int, char**, char**)
 				else
 				{
 					iface.reset();
+
+
+					for (int pin = 0; pin < 24; ++pin)
+						iface.configure_pin (pin, tinyio::Input);
+					while (true)
+					{
+						auto in = iface.get_pin_levels();
+						for (int i = 0; i < 24; ++i)
+							std::cout << in[i];
+						std::cout << std::endl;
+					}
+
+
+					for (int pin = 0; pin < 24; ++pin)
+						iface.configure_pin (pin, tinyio::Output);
 					for (int z = 0; z < 1000; ++z)
 					{
-						usleep (500000);
-						for (int i = 0; i < 24; ++i)
+						for (int pin = 0; pin < 24; ++pin)
 						{
-							iface.configure_pin (i, tinyio::Output);
-							iface.set_pin_level (i, i % 2 == z % 2);
+							for (int i = 0; i < 20; ++i)
+							{
+								usleep (50000);
+								iface.set_pin_level (pin, i % 2 == 0);
+								iface.commit();
+						auto in = iface.get_pin_levels();
+						for (int i = 0; i < 24; ++i)
+							std::cout << in[i];
+						std::cout << std::endl;
+							}
+							iface.set_pin_level (pin, false);
 						}
-						iface.commit();
 					}
 				}
 			}

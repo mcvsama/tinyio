@@ -11,8 +11,8 @@
  * Visit http://www.gnu.org/licenses/gpl-3.0.html for more information on licensing.
  */
 
-#ifndef TINYIO__INTERFACE_H__INCLUDED
-#define TINYIO__INTERFACE_H__INCLUDED
+#ifndef TINYIO__TINYIO__DEVICE_H__INCLUDED
+#define TINYIO__TINYIO__DEVICE_H__INCLUDED
 
 // Lib:
 #include <libusbcc/libusbcc.h>
@@ -30,23 +30,23 @@ enum PinDirection {
 /**
  * Represents open state of a TinyIO device.
  */
-class Interface
+class Device
 {
   public:
 	static constexpr std::size_t	kPinsCount = 24;
 
   public:
-	Interface (libusb::Device&&);
+	Device (libusb::Device&&);
 
-	Interface (Interface const&) = delete;
+	Device (Device const&) = delete;
 
-	Interface (Interface&&) = default;
+	Device (Device&&) = default;
 
-	Interface&
-	operator= (Interface const&) = delete;
+	Device&
+	operator= (Device const&) = delete;
 
-	Interface&
-	operator= (Interface&&) = default;
+	Device&
+	operator= (Device&&) = default;
 
 	/**
 	 * Return device version as string.

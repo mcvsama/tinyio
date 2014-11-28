@@ -20,16 +20,16 @@
 #include <libusbcc/libusbcc.h>
 
 // TinyIO:
+#include <tinyio/tinyio/exception.h>
 #include <tinyio/control_request.h>
-#include <tinyio/exception.h>
 
 // Local:
-#include "interface.h"
+#include "device.h"
 
 
 namespace tinyio {
 
-Interface::Interface (libusb::Device&& usb_device):
+Device::Device (libusb::Device&& usb_device):
 	_usb_device (std::move (usb_device))
 {
 	reset();
@@ -37,21 +37,21 @@ Interface::Interface (libusb::Device&& usb_device):
 
 
 std::string
-Interface::release_version_str() const
+Device::release_version_str() const
 {
 	return _usb_device.descriptor().release_version_str();
 }
 
 
 std::string
-Interface::serial_number() const
+Device::serial_number() const
 {
 	return _usb_device.serial_number();
 }
 
 
 void
-Interface::reset()
+Device::reset()
 {
 	for (std::size_t i = 0; i < kPinsCount; ++i)
 	{
@@ -63,7 +63,7 @@ Interface::reset()
 
 
 void
-Interface::configure_pin (uint8_t pin, PinDirection dir)
+Device::configure_pin (uint8_t pin, PinDirection dir)
 {
 	if (pin < kPinsCount)
 	{
@@ -77,7 +77,7 @@ Interface::configure_pin (uint8_t pin, PinDirection dir)
 
 
 void
-Interface::set_pin_level (uint8_t pin, bool logic_level)
+Device::set_pin_level (uint8_t pin, bool logic_level)
 {
 	if (pin < kPinsCount)
 	{
@@ -91,7 +91,7 @@ Interface::set_pin_level (uint8_t pin, bool logic_level)
 
 
 void
-Interface::commit()
+Device::commit()
 {
 	if (_pin_directions_changed)
 	{
@@ -107,8 +107,8 @@ Interface::commit()
 }
 
 
-std::array<bool, Interface::kPinsCount>
-Interface::get_pin_levels()
+std::array<bool, Device::kPinsCount>
+Device::get_pin_levels()
 {
 	return get_bits (_usb_device.receive (libusb::ControlTransfer (static_cast<uint8_t> (USBControlRequest::GetPins), 0, 0), 0));
 }
@@ -116,7 +116,7 @@ Interface::get_pin_levels()
 
 template<class T>
 	inline std::vector<uint8_t>
-	Interface::get_mask (std::array<T, kPinsCount> const& bit_array)
+	Device::get_mask (std::array<T, kPinsCount> const& bit_array)
 	{
 		std::size_t n_bytes = kPinsCount / 8;
 		std::vector<uint8_t> result (n_bytes, 0);
@@ -136,8 +136,8 @@ template<class T>
 	}
 
 
-inline std::array<bool, Interface::kPinsCount>
-Interface::get_bits (std::vector<uint8_t> const& bytes)
+inline std::array<bool, Device::kPinsCount>
+Device::get_bits (std::vector<uint8_t> const& bytes)
 {
 	std::array<bool, kPinsCount> result;
 
@@ -160,7 +160,7 @@ Interface::get_bits (std::vector<uint8_t> const& bytes)
 
 
 inline void
-Interface::swap_bits (uint8_t& b)
+Device::swap_bits (uint8_t& b)
 {
 	b = (b & 0xf0) >> 4 | (b & 0x0f) << 4;
 	b = (b & 0xcc) >> 2 | (b & 0x33) << 2;

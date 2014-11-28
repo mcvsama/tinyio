@@ -20,20 +20,20 @@
 #include <libusbcc/libusbcc.h>
 
 // Local:
-#include "tinyio.h"
+#include "device_info.h"
 
 
 namespace tinyio {
 
-TinyIO::TinyIO (libusb::DeviceDescriptor const& usb_descriptor):
+DeviceInfo::DeviceInfo (libusb::DeviceDescriptor const& usb_descriptor):
 	_usb_descriptor (usb_descriptor)
 { }
 
 
-Interface
-TinyIO::open() const
+Device
+DeviceInfo::open() const
 {
-	return Interface (_usb_descriptor.open());
+	return Device (_usb_descriptor.open());
 }
 
 } // namespace tinyio

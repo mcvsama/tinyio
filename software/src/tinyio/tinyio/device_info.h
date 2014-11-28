@@ -11,8 +11,8 @@
  * Visit http://www.gnu.org/licenses/gpl-3.0.html for more information on licensing.
  */
 
-#ifndef TINYIO__TINYIO_H__INCLUDED
-#define TINYIO__TINYIO_H__INCLUDED
+#ifndef TINYIO__TINYIO__DEVICE_INFO_H__INCLUDED
+#define TINYIO__TINYIO__DEVICE_INFO_H__INCLUDED
 
 // Standard:
 #include <vector>
@@ -22,24 +22,24 @@
 #include <boost/optional.hpp>
 
 // Local:
-#include "interface.h"
+#include "device.h"
 
 
 namespace tinyio {
 
 /**
- * Represents TinyIO device.
+ * Represents TinyIO descriptor.
  */
-class TinyIO
+class DeviceInfo
 {
   public:
 	// Ctor
-	explicit TinyIO (libusb::DeviceDescriptor const&);
+	explicit DeviceInfo (libusb::DeviceDescriptor const&);
 
 	/**
 	 * Open the device, return the handle.
 	 */
-	Interface
+	Device
 	open() const;
 
   private:
@@ -47,7 +47,7 @@ class TinyIO
 };
 
 
-typedef std::vector<TinyIO> TinyIOList;
+typedef std::vector<DeviceInfo> DeviceInfoList;
 
 } // namespace tinyio
 

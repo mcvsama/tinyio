@@ -11,14 +11,14 @@
  * Visit http://www.gnu.org/licenses/gpl-3.0.html for more information on licensing.
  */
 
-#ifndef TINYIO__TINYIO_MANAGER_H__INCLUDED
-#define TINYIO__TINYIO_MANAGER_H__INCLUDED
+#ifndef TINYIO__TINYIO__DEVICE_MANAGER_H__INCLUDED
+#define TINYIO__TINYIO__DEVICE_MANAGER_H__INCLUDED
 
 // Lib:
 #include <boost/optional.hpp>
 
 // Local:
-#include "tinyio.h"
+#include "device_info.h"
 
 
 namespace tinyio {
@@ -26,7 +26,7 @@ namespace tinyio {
 /**
  * Searches for TinyIO devices.
  */
-class TinyIOManager
+class DeviceManager
 {
 	static constexpr libusb::VendorID	kTinyIOVendorID		= 0x16c0;
 	static constexpr libusb::ProductID	kTinyIOProductID	= 0x05dc;
@@ -37,7 +37,7 @@ class TinyIOManager
 	/**
 	 * Searches the USB bus for TinyIO devices.
 	 */
-	TinyIOList
+	DeviceInfoList
 	find_devices() const;
 
   private:

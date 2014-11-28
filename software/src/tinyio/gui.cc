@@ -22,8 +22,8 @@
 // Lib:
 #include <libusbcc/libusbcc.h>
 
-// Local:
-#include "tinyio_manager.h"
+// TinyIO:
+#include <tinyio/tinyio/device_manager.h>
 
 
 void
@@ -56,7 +56,7 @@ int main (int, char**, char**)
 	using namespace libusb;
 
 	try {
-		tinyio::TinyIOManager tinyio_manager;
+		tinyio::DeviceManager tinyio_manager;
 		auto devices = tinyio_manager.find_devices();
 
 		if (devices.empty())
@@ -67,24 +67,23 @@ int main (int, char**, char**)
 
 			for (auto const& device: devices)
 			{
-				tinyio::Interface iface = device.open();
-				std::cout << "  TinyIO version " << iface.release_version_str() << ", S/N: " << iface.serial_number() << std::endl;
+				tinyio::Device tinyio = device.open();
+				std::cout << "  TinyIO version " << tinyio.release_version_str() << ", S/N: " << tinyio.serial_number() << std::endl;
 
-				if (iface.release_version_str() != "1.0")
+				if (tinyio.release_version_str() != "1.0")
 				{
 					std::clog << "    Unsupported version, skipping." << std::endl;
 					continue;
 				}
 				else
 				{
-					iface.reset();
-
+					tinyio.reset();
 
 					for (int pin = 0; pin < 24; ++pin)
-						iface.configure_pin (pin, tinyio::Input);
+						tinyio.configure_pin (pin, tinyio::Input);
 					while (true)
 					{
-						auto in = iface.get_pin_levels();
+						auto in = tinyio.get_pin_levels();
 						for (int i = 0; i < 24; ++i)
 							std::cout << in[i];
 						std::cout << std::endl;
@@ -92,7 +91,7 @@ int main (int, char**, char**)
 
 
 					for (int pin = 0; pin < 24; ++pin)
-						iface.configure_pin (pin, tinyio::Output);
+						tinyio.configure_pin (pin, tinyio::Output);
 					for (int z = 0; z < 1000; ++z)
 					{
 						for (int pin = 0; pin < 24; ++pin)
@@ -100,14 +99,14 @@ int main (int, char**, char**)
 							for (int i = 0; i < 20; ++i)
 							{
 								usleep (50000);
-								iface.set_pin_level (pin, i % 2 == 0);
-								iface.commit();
-						auto in = iface.get_pin_levels();
+								tinyio.set_pin_level (pin, i % 2 == 0);
+								tinyio.commit();
+						auto in = tinyio.get_pin_levels();
 						for (int i = 0; i < 24; ++i)
 							std::cout << in[i];
 						std::cout << std::endl;
 							}
-							iface.set_pin_level (pin, false);
+							tinyio.set_pin_level (pin, false);
 						}
 					}
 				}

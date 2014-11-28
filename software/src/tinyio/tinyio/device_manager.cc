@@ -21,16 +21,16 @@
 #include <libusbcc/libusbcc.h>
 
 // Local:
-#include "tinyio_manager.h"
+#include "device_manager.h"
 #include "exception.h"
 
 
 namespace tinyio {
 
-TinyIOList
-TinyIOManager::find_devices() const
+DeviceInfoList
+DeviceManager::find_devices() const
 {
-	TinyIOList result;
+	DeviceInfoList result;
 
 	for (auto const& descriptor: _bus.device_descriptors())
 	{

@@ -1,2 +1,2 @@
-SYSFS{idVendor}=="16c0",SYSFS{idProduct}=="05df",SYSFS{manufacturer}=="mulabs.org",SYSFS{product}=="TinyIO", MODE="0660",GROUP="users"
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="16c0", ATTRS{idProduct}=="05dc", ATTRS{manufacturer}=="mulabs.org", ATTRS{product}=="TinyIO", MODE="0660", GROUP="users"
 

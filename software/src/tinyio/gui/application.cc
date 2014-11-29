@@ -11,48 +11,32 @@
  * Visit http://www.gnu.org/licenses/gpl-3.0.html for more information on licensing.
  */
 
-// Standard:
-#include <cstddef>
-#include <cstdlib>
-#include <exception>
-#include <iostream>
-#include <string>
-#include <iomanip>
-
 // Lib:
-#include <libusbcc/libusbcc.h>
+#include <QtCore/QTextCodec>
+#include <QtWidgets/QMessageBox>
 
 // TinyIO:
-#include <tinyio/tinyio/device_manager.h>
+#include <tinyio/gui/main_window.h>
+
+// Local:
+#include "application.h"
 
 
-void
-print_exception (std::exception const& e, int level = 0)
+namespace tinyiogui {
+
+Application::Application (int& argc, char** argv):
+	QApplication (argc, argv)
 {
-	std::string indent (level, ' ');
-	std::cerr << indent << indent;
-	if (level == 0)
-		std::cerr << "Exception: ";
-	else
-		std::cerr << "Reason: ";
-	std::cerr << e.what() << std::endl;
+	// Casting QString to std::string|const char* should yield UTF-8 encoded strings.
+	// Also encode std::strings and const chars* in UTF-8:
+	QTextCodec::setCodecForLocale (QTextCodec::codecForName ("UTF-8"));
 
-	try {
-		std::rethrow_if_nested (e);
-	}
-	catch (const std::exception& e)
-	{
-		print_exception (e, level + 1);
-	}
-	catch (...)
-	{
-		throw;
-	}
-}
+	_device_manager = std::make_unique<tinyio::DeviceManager>();
+	_main_window = std::make_unique<MainWindow> (this);
 
+	_main_window->show();
 
-int main (int, char**, char**)
-{
+#if 0
 	using namespace libusb;
 
 	try {
@@ -117,7 +101,62 @@ int main (int, char**, char**)
 	{
 		print_exception (e);
 	}
-
-	return EXIT_SUCCESS;
+#endif
 }
+
+
+bool
+Application::notify (QObject* receiver, QEvent* event)
+{
+	try {
+		return QApplication::notify (receiver, event);
+	}
+	catch (std::exception const& e)
+	{
+		QMessageBox::critical (nullptr, "Exception", QString::fromStdString (stringify_exception (e)));
+	}
+
+	return false;
+}
+
+
+std::string
+Application::stringify_exception (std::exception const& e)
+{
+	std::function<void (std::exception const&, std::string&, int)> stringify_one;
+
+	stringify_one = [&](std::exception const& e, std::string& result, int level)
+	{
+		std::string indent (level, ' ');
+		result += indent + indent;
+
+		if (level == 0)
+			result += "Exception: ";
+		else
+			result += "Reason: ";
+
+		result += e.what();
+		result += '\n';
+
+		try {
+			std::rethrow_if_nested (e);
+		}
+		catch (const std::exception& e)
+		{
+			stringify_one (e, result, level + 1);
+		}
+		catch (...)
+		{
+			// TODO maybe append 'unknown exception'?
+			throw;
+		}
+	};
+
+	std::string result;
+	stringify_one (e, result, 0);
+
+	return result;
+}
+
+} // namespace tinyiogui
 

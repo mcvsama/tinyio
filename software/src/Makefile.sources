@@ -13,11 +13,17 @@ TINYIO_HEADERS += tinyio/tinyio/exception.h
 TINYIO_HEADERS += tinyio/tinyio/device.h
 TINYIO_HEADERS += tinyio/tinyio/device_info.h
 TINYIO_HEADERS += tinyio/tinyio/device_manager.h
+TINYIO_HEADERS += tinyio/gui/application.h
+TINYIO_HEADERS += tinyio/gui/main_window.h
+TINYIO_HEADERS += tinyio/gui/select_device_widget.h
 
-TINYIO_SOURCES += tinyio/gui.cc
+TINYIO_SOURCES += tinyio/tinyio-gui.cc
 TINYIO_SOURCES += tinyio/tinyio/device.cc
 TINYIO_SOURCES += tinyio/tinyio/device_info.cc
 TINYIO_SOURCES += tinyio/tinyio/device_manager.cc
+TINYIO_SOURCES += tinyio/gui/application.cc
+TINYIO_SOURCES += tinyio/gui/main_window.cc
+TINYIO_SOURCES += tinyio/gui/select_device_widget.cc
 
 ################
 

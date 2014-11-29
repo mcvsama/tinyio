@@ -11,23 +11,30 @@
  * Visit http://www.gnu.org/licenses/gpl-3.0.html for more information on licensing.
  */
 
-#ifndef TINYIO__CONFIG__TYPES_H__INCLUDED
-#define TINYIO__CONFIG__TYPES_H__INCLUDED
-
-// Standard:
-#include <cstddef>
-#include <memory>
+#ifndef TINYIO__GUI__SELECT_DEVICE_WIDGET_H__INCLUDED
+#define TINYIO__GUI__SELECT_DEVICE_WIDGET_H__INCLUDED
 
 // Lib:
-#include <boost/optional.hpp>
+#include <QtWidgets/QWidget>
+#include <libusbcc/libusbcc.h>
+
+// TinyIO:
+#include <tinyio/tinyio/device_manager.h>
 
 
-template<class T>
-	using Optional = boost::optional<T>;
+namespace tinyiogui {
 
+class SelectDeviceWidget: public QWidget
+{
+  public:
+	// Ctor
+	SelectDeviceWidget (QWidget* parent, tinyio::DeviceManager*);
 
-template<class T>
-	using Unique = std::unique_ptr<T>;
+  private:
+	tinyio::DeviceManager* _device_manager;
+};
+
+} // namespace tinyiogui
 
 #endif
 

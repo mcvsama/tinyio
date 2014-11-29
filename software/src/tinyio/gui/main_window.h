@@ -11,23 +11,29 @@
  * Visit http://www.gnu.org/licenses/gpl-3.0.html for more information on licensing.
  */
 
-#ifndef TINYIO__CONFIG__TYPES_H__INCLUDED
-#define TINYIO__CONFIG__TYPES_H__INCLUDED
-
-// Standard:
-#include <cstddef>
-#include <memory>
+#ifndef TINYIO__GUI__MAIN_WINDOW_H__INCLUDED
+#define TINYIO__GUI__MAIN_WINDOW_H__INCLUDED
 
 // Lib:
-#include <boost/optional.hpp>
+#include <QtWidgets/QWidget>
 
 
-template<class T>
-	using Optional = boost::optional<T>;
+namespace tinyiogui {
+
+class Application;
 
 
-template<class T>
-	using Unique = std::unique_ptr<T>;
+class MainWindow: public QWidget
+{
+  public:
+	// Ctor
+	MainWindow (Application*);
+
+  private:
+	Application* _application;
+};
+
+} // namespace tinyiogui
 
 #endif
 

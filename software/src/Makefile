@@ -30,7 +30,7 @@ UB_OPTS_DISABLE	:= 0
 #### Core (special) vars ####
 
 DEFINES			+= -DMCU_TYPE=$(MCU) -DF_CPU=$(MCU_FREQUENCY)
-C_CXX_FLAGS		+= -fPIE -O3 -g -c -std=c++11 -Wall -Wall -Wextra -Wunused  -Wunused-function -Wunused-label -fstrict-aliasing $(foreach warning, $(CLANG_DISABLED_WARNINGS), -Wno-$(warning))
+C_CXX_FLAGS		+= -fPIE -O3 -g -c -std=c++14 -Wall -Wall -Wextra -Wunused -Wunused-function -Wunused-label -fstrict-aliasing $(foreach warning, $(CLANG_DISABLED_WARNINGS), -Wno-$(warning))
 C_CXX_FLAGS		+= -pthread -I. -Ilib/libusbcc/src
 C_CXX_FLAGS		+= -O3 -Ilib -Wall
 C_CXX_OPT_FLAGS	+= -finline -funroll-loops -fomit-frame-pointer
@@ -50,7 +50,7 @@ ASFLAGS			+= $(DEFINES) -O3 -Ilib -Wall
 C				:= gcc -c
 CFLAGS			+= $(DEFINES) $(C_CXX_FLAGS) $(C_CXX_OPT_FLAGS)
 CXX				:= g++ -c
-CXXFLAGS		+= $(DEFINES) $(C_CXX_FLAGS) -std=c++11 $(C_CXX_OPT_FLAGS)
+CXXFLAGS		+= $(DEFINES) $(C_CXX_FLAGS) -std=c++14 $(C_CXX_OPT_FLAGS)
 SO				:= $(CXX) -shared
 SOFLAGS			+=
 LD				:= g++
@@ -64,14 +64,14 @@ MOC				:= $(QT_PREFIX)/bin/moc-qt5
 #### Generic additional flags ####
 
 ifeq ($(CXX),g++)
-C_CXX_FLAGS		+= -fPIE -O0 -g -Wall -Wall -Wextra -Wunused  -Wunused-function -Wunused-label -fstrict-aliasing -Wstrict-aliasing=3
+C_CXX_FLAGS		+= -fPIE -O0 -g -Wall -Wall -Wextra -Wunused -Wunused-function -Wunused-label -fstrict-aliasing -Wstrict-aliasing=3
 C_CXX_FLAGS		+= -pthread -rdynamic -I. -Ilib/libusbcc/src
-CXXFLAGS		+= -std=c++11 -fnothrow-opt -Wnoexcept
+CXXFLAGS		+= -std=c++14 -fnothrow-opt -Wnoexcept
 endif
 
 ifeq ($(CXX),clang++)
 CLANG_DISABLED_WARNINGS = mismatched-tags disabled-macro-expansion c++98-compat-pedantic documentation-unknown-command
-C_CXX_FLAGS		+= -fPIE -O3 -g -std=c++11 -Wall -Wall -Wextra -Wunused  -Wunused-function -Wunused-label -fstrict-aliasing $(foreach warning, $(CLANG_DISABLED_WARNINGS), -Wno-$(warning))
+C_CXX_FLAGS		+= -fPIE -O3 -g -std=c++14 -Wall -Wall -Wextra -Wunused -Wunused-function -Wunused-label -fstrict-aliasing $(foreach warning, $(CLANG_DISABLED_WARNINGS), -Wno-$(warning))
 C_CXX_FLAGS		+= -pthread -I. -Ilib/libusbcc/src
 endif
 

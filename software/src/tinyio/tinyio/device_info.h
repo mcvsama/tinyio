@@ -42,9 +42,22 @@ class DeviceInfo
 	Device
 	open() const;
 
+	/**
+	 * Return the unique device ID (USB address).
+	 */
+	uint8_t
+	address() const;
+
   private:
 	libusb::DeviceDescriptor _usb_descriptor;
 };
+
+
+inline uint8_t
+DeviceInfo::address() const
+{
+	return _usb_descriptor.address();
+}
 
 
 typedef std::vector<DeviceInfo> DeviceInfoList;

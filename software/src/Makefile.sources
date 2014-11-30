@@ -16,6 +16,10 @@ TINYIO_HEADERS += tinyio/tinyio/device_manager.h
 TINYIO_HEADERS += tinyio/gui/application.h
 TINYIO_HEADERS += tinyio/gui/main_window.h
 TINYIO_HEADERS += tinyio/gui/select_device_widget.h
+TINYIO_HEADERS += tinyio/gui/control_widget.h
+TINYIO_HEADERS += tinyio/gui/pin_widget.h
+
+TINYIO_MOCHDRS += tinyio/gui/select_device_widget.h
 
 TINYIO_SOURCES += tinyio/tinyio-gui.cc
 TINYIO_SOURCES += tinyio/tinyio/device.cc
@@ -24,6 +28,8 @@ TINYIO_SOURCES += tinyio/tinyio/device_manager.cc
 TINYIO_SOURCES += tinyio/gui/application.cc
 TINYIO_SOURCES += tinyio/gui/main_window.cc
 TINYIO_SOURCES += tinyio/gui/select_device_widget.cc
+TINYIO_SOURCES += tinyio/gui/control_widget.cc
+TINYIO_SOURCES += tinyio/gui/pin_widget.cc
 
 ################
 

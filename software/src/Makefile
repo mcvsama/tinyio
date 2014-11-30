@@ -58,7 +58,7 @@ LDFLAGS			+= -rdynamic
 AR				:= ar
 ARFLAGS			+=
 DEPGEN			:= $(CXX)
-DEPFLAGS		+= $(DEFINES)
+DEPFLAGS		+= $(CXXFLAGS) $(DEFINES)
 MOC				:= $(QT_PREFIX)/bin/moc-qt5
 
 #### Generic additional flags ####

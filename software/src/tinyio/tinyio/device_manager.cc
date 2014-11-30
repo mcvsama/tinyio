@@ -57,5 +57,17 @@ DeviceManager::find_devices() const
 	return result;
 }
 
+
+Optional<DeviceInfo>
+DeviceManager::find_by_address (uint8_t address) const
+{
+	auto device_descriptor = _bus.find_by_address (address);
+
+	if (device_descriptor)
+		return DeviceInfo (*device_descriptor);
+	else
+		return { };
+}
+
 } // namespace tinyio
 

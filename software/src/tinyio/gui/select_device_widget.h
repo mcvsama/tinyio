@@ -16,6 +16,8 @@
 
 // Lib:
 #include <QtWidgets/QWidget>
+#include <QtWidgets/QComboBox>
+#include <QtWidgets/QPushButton>
 #include <libusbcc/libusbcc.h>
 
 // TinyIO:
@@ -26,12 +28,49 @@ namespace tinyiogui {
 
 class SelectDeviceWidget: public QWidget
 {
+	Q_OBJECT
+
   public:
 	// Ctor
 	SelectDeviceWidget (QWidget* parent, tinyio::DeviceManager*);
 
+	/**
+	 * Return DeviceInfo for the selected device.
+	 */
+	Optional<tinyio::DeviceInfo>
+	selected_device_info() const;
+
+	/**
+	 * Re-read USB device list and refresh the combo-box.
+	 */
+	void
+	refresh_list();
+
   private:
-	tinyio::DeviceManager* _device_manager;
+	/**
+	 * Called by the "Select" button.
+	 */
+	void
+	select_pressed();
+
+  private slots:
+	/**
+	 * Update UI state, enable/disable buttons, etc.
+	 */
+	void
+	update_ui();
+
+  signals:
+	/**
+	 * Emitted when user presses the "Select" button.
+	 */
+	void
+	selected();
+
+  private:
+	tinyio::DeviceManager*	_device_manager;
+	QComboBox*				_devices_combobox;
+	QPushButton*			_select_button;
 };
 
 } // namespace tinyiogui

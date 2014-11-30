@@ -40,6 +40,12 @@ class DeviceManager
 	DeviceInfoList
 	find_devices() const;
 
+	/**
+	 * Find device by USB device address.
+	 */
+	Optional<DeviceInfo>
+	find_by_address (uint8_t address) const;
+
   private:
 	libusb::Bus _bus;
 };

@@ -36,10 +36,88 @@ namespace tinyiogui {
 MainWindow::MainWindow (Application* application):
 	_application (application)
 {
-	auto select_device_widget = new SelectDeviceWidget (this, application->device_manager());
+	_select_device_widget = std::make_unique <SelectDeviceWidget> (this, application->device_manager());
 
-	auto layout = new QVBoxLayout (this);
-	layout->addWidget (select_device_widget);
+	_stack = std::make_unique<QStackedLayout> (this);
+	_stack->addWidget (_select_device_widget.get());
+	_stack->setCurrentWidget (_select_device_widget.get());
+
+	QObject::connect (_select_device_widget.get(), &SelectDeviceWidget::selected,
+					  this, &MainWindow::device_selected);
+
+	setWindowTitle ("TinyIO");
+}
+
+
+void
+MainWindow::show_selector()
+{
+	_select_device_widget->refresh_list();
+	_stack->setCurrentWidget (_select_device_widget.get());
+}
+
+
+void
+MainWindow::show_control_widget()
+{
+	if (_control_widget_wrapper && _control_widget)
+		_stack->setCurrentWidget (_control_widget_wrapper.get());
+}
+
+
+Unique<QWidget>
+MainWindow::make_control_widget_wrapper (ControlWidget* control_widget)
+{
+	auto result = std::make_unique<QWidget> (this);
+
+	auto disconnect_button = new QPushButton ("Disconnect", result.get());
+
+	auto hold_button = new QPushButton ("&Hold changes", result.get());
+	hold_button->setCheckable (true);
+
+	auto buttons_layout = new QHBoxLayout();
+	buttons_layout->addWidget (disconnect_button);
+	buttons_layout->addItem (new QSpacerItem (0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
+	buttons_layout->addWidget (hold_button);
+
+	auto layout = new QVBoxLayout (result.get());
+	layout->addLayout (buttons_layout);
+	layout->addWidget (control_widget);
+
+	return result;
+}
+
+
+void
+MainWindow::device_selected()
+{
+	auto device_info = _select_device_widget->selected_device_info();
+
+	if (device_info)
+	{
+		try {
+			// Open device:
+			tinyio::Device device = device_info->open();
+			_control_widget = new ControlWidget (this, std::move (device));
+
+			// Make control widget wrapper:
+			_control_widget_wrapper = make_control_widget_wrapper (_control_widget);
+			_stack->addWidget (_control_widget_wrapper.get());
+
+			show_control_widget();
+		}
+		catch (std::exception const& e)
+		{
+			auto message = "Failed to open selected device:\n" + Application::stringify_exception (e);
+			QMessageBox::warning (this, "Connection error", QString::fromStdString (message));
+			show_selector();
+		}
+	}
+	else
+	{
+		QMessageBox::warning (this, "Connection error", "Failed to find selected device.");
+		show_selector();
+	}
 }
 
 } // namespace tinyiogui

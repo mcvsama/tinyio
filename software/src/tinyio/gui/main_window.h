@@ -16,6 +16,11 @@
 
 // Lib:
 #include <QtWidgets/QWidget>
+#include <QtWidgets/QStackedLayout>
+
+// TinyIO:
+#include <tinyio/gui/select_device_widget.h>
+#include <tinyio/gui/control_widget.h>
 
 
 namespace tinyiogui {
@@ -30,7 +35,37 @@ class MainWindow: public QWidget
 	MainWindow (Application*);
 
   private:
-	Application* _application;
+	/**
+	 * Show device selector and refresh it.
+	 */
+	void
+	show_selector();
+
+	/**
+	 * Show control widget, if possible.
+	 */
+	void
+	show_control_widget();
+
+	/**
+	 * Create control widget wrapper.
+	 */
+	Unique<QWidget>
+	make_control_widget_wrapper (ControlWidget*);
+
+  private slots:
+	/**
+	 * Called when user selects a device.
+	 */
+	void
+	device_selected();
+
+  private:
+	Application*				_application;
+	Unique<QStackedLayout>		_stack;
+	Unique<SelectDeviceWidget>	_select_device_widget;
+	Unique<QWidget>				_control_widget_wrapper;
+	ControlWidget*				_control_widget; // Will be owned by the wrapper.
 };
 
 } // namespace tinyiogui

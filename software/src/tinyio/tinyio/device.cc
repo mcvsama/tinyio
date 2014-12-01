@@ -90,6 +90,15 @@ Device::set_pin_level (uint8_t pin, bool logic_level)
 }
 
 
+bool
+Device::get_pin_level (uint8_t pin) const
+{
+	if (pin < kPinsCount)
+		return _pin_levels[pin];
+	return false;
+}
+
+
 void
 Device::flip_pin_level (uint8_t pin)
 {

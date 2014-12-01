@@ -81,6 +81,13 @@ class Device
 	set_pin_level (uint8_t pin, bool logic_level);
 
 	/**
+	 * Return configured pin level (might be different than
+	 * actual pin level, eg. in input+pull-up configuration).
+	 */
+	bool
+	get_pin_level (uint8_t pin) const;
+
+	/**
 	 * Set pin logic level to the opposite.
 	 */
 	void

@@ -35,10 +35,22 @@ class PinWidget: public QWidget
 	PinWidget (QWidget* parent, uint8_t pin);
 
 	/**
-	 * Set button color (indicate real pin logic level).
+	 * Set configured pin level.
+	 */
+	void
+	set_configured_pin_level (bool logic_level);
+
+	/**
+	 * Set about actual pin level (as read by the µC).
 	 */
 	void
 	set_actual_pin_level (bool logic_level);
+
+	/**
+	 * Update GUI.
+	 */
+	void
+	update_gui();
 
   signals:
 	/**
@@ -82,16 +94,17 @@ class PinWidget: public QWidget
 	 * Set look of a button.
 	 */
 	static void
-	set_button_highlighted (QPushButton* button, tinyio::PinDirection direction, bool logic_level);
+	set_button_color (QPushButton* button, QColor const&);
 
   private:
 	uint8_t					_pin;
+	bool					_configured_level	= false;
+	bool					_actual_level		= false;
 	Unique<QPushButton>		_button;
 	Unique<QLabel>			_label;
 	Unique<QLabel>			_io_label;
-	tinyio::PinDirection	_direction	= tinyio::Input;
+	tinyio::PinDirection	_direction			= tinyio::Input;
 	QMenu*					_menu;
-	bool					_pull_up	= false;
 };
 
 } // namespace tinyiogui

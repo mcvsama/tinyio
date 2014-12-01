@@ -28,27 +28,32 @@ ControlWidget::ControlWidget (QWidget* parent, tinyio::Device&& device):
 	QWidget (parent),
 	_device (std::move (device))
 {
-	auto layout = new QGridLayout (this);
-	layout->setMargin (0);
-
-	for (int port = 0; port < 3; ++port)
+	for (std::size_t pin = 0; pin < tinyio::Device::kPinsCount; ++pin)
 	{
-		for (int bit = 0; bit < 8; ++bit)
-		{
-			int pin_i = 8 * port + bit;
-			Unique<PinWidget> pin_widget = std::make_unique<PinWidget> (this, pin_i);
-			QObject::connect (pin_widget.get(), &PinWidget::flip_pin_level, std::bind (&ControlWidget::flip_pin_level, this, pin_i));
-			QObject::connect (pin_widget.get(), &PinWidget::set_pin_direction, std::bind (&ControlWidget::set_pin_direction, this, pin_i, std::placeholders::_1));
-			_pin_widgets[pin_i] = std::move (pin_widget);
-			layout->addWidget (_pin_widgets[pin_i].get(), bit, port);
-		}
+		Unique<PinWidget> pin_widget = std::make_unique<PinWidget> (this, pin);
+		QObject::connect (pin_widget.get(), &PinWidget::flip_pin_level, std::bind (&ControlWidget::flip_pin_level, this, pin));
+		QObject::connect (pin_widget.get(), &PinWidget::set_pin_direction, std::bind (&ControlWidget::set_pin_direction, this, pin, std::placeholders::_1));
+		_pin_widgets[pin] = std::move (pin_widget);
 	}
+
+	auto info_label = new QLabel ("Green → high Z • Blue → pull-up • Red → output");
 
 	_refresh_timer = std::make_unique<QTimer> (this);
 	_refresh_timer->setInterval (20);
 	_refresh_timer->setSingleShot (false);
 	QObject::connect (_refresh_timer.get(), &QTimer::timeout, this, &ControlWidget::timeout);
 	_refresh_timer->start();
+
+	auto grid_layout = new QGridLayout();
+	grid_layout->setMargin (0);
+	for (int port = 0; port < 3; ++port)
+		for (int bit = 0; bit < 8; ++bit)
+			grid_layout->addWidget (_pin_widgets[8 * port + bit].get(), bit, port);
+
+	auto layout = new QVBoxLayout (this);
+	layout->setMargin (0);
+	layout->addLayout (grid_layout);
+	layout->addWidget (info_label);
 
 	get_pin_levels();
 }
@@ -75,7 +80,10 @@ ControlWidget::get_pin_levels()
 {
 	auto levels = _device.get_pin_levels();
 	for (std::size_t i = 0; i < levels.size(); ++i)
+	{
 		_pin_widgets[i]->set_actual_pin_level (levels[i]);
+		_pin_widgets[i]->set_configured_pin_level (_device.get_pin_level (i));
+	}
 }
 
 

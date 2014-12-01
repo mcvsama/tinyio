@@ -48,9 +48,49 @@ PinWidget::PinWidget (QWidget* parent, uint8_t pin):
 
 
 void
+PinWidget::set_configured_pin_level (bool logic_level)
+{
+	_configured_level = logic_level;
+	update_gui();
+}
+
+
+void
 PinWidget::set_actual_pin_level (bool logic_level)
 {
-	set_button_highlighted (_button.get(), _direction, logic_level);
+	_actual_level = logic_level;
+	update_gui();
+}
+
+
+void
+PinWidget::update_gui()
+{
+	QColor on, off;
+
+	switch (_direction)
+	{
+		case tinyio::Input:
+			if (_configured_level == true)
+			{
+				on = { 0x00, 0xa6, 0xff };
+				off = { 0x00, 0x21, 0x48 };
+			}
+			else
+			{
+				on = { 0x2a, 0xff, 0x00 };
+				off = { 0x0c, 0x48, 0x00 };
+			}
+			break;
+
+		case tinyio::Output:
+			on = { 0xff, 0x00, 0x00 };
+			off = { 0x48, 0x00, 0x00 };
+			break;
+	}
+
+	_button->setText (_configured_level ? "↑" : "↓");
+	set_button_color (_button.get(), _actual_level ? on : off);
 }
 
 
@@ -91,27 +131,10 @@ PinWidget::button_pressed()
 
 
 void
-PinWidget::set_button_highlighted (QPushButton* button, tinyio::PinDirection direction, bool logic_level)
+PinWidget::set_button_color (QPushButton* button, QColor const& color)
 {
-	QColor on, off;
-
-	switch (direction)
-	{
-		case tinyio::Input:
-			on = Qt::green;
-			off = Qt::darkGreen;
-			button->setText ("IN");
-			break;
-
-		case tinyio::Output:
-			on = Qt::red;
-			off = Qt::darkRed;
-			button->setText ("OUT");
-			break;
-	}
-
 	QPalette p = button->palette();
-	p.setColor (QPalette::Button, logic_level ? on : off);
+	p.setColor (QPalette::Button, color);
 	p.setColor (QPalette::ButtonText, Qt::black);
 	button->setPalette (p);
 }

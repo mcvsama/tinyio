@@ -18,6 +18,7 @@
 #include <array>
 
 // Lib:
+#include <QtCore/QTimer>
 #include <QtWidgets/QWidget>
 
 // TinyIO:
@@ -33,9 +34,38 @@ class ControlWidget: public QWidget
 	// Ctor
 	ControlWidget (QWidget* parent, tinyio::Device&&);
 
+  public slots:
+	/**
+	 * Set pin direction (input/output).
+	 */
+	void
+	set_pin_direction (uint8_t pin, tinyio::PinDirection);
+
+	/**
+	 * Flip pin output level.
+	 */
+	void
+	flip_pin_level (uint8_t pin);
+
+	/**
+	 * Read all pin levels.
+	 */
+	void
+	get_pin_levels();
+
+  private:
+	/**
+	 * Gets called periodically.
+	 */
+	void
+	timeout();
+
   private:
 	tinyio::Device						_device;
 	std::array<Unique<PinWidget>, 24>	_pin_widgets;
+	Unique<QTimer>						_refresh_timer;
+	// If true, exceptions are silenced:
+	bool								_failsafe;
 };
 
 } // namespace tinyiogui

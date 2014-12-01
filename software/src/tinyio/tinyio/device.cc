@@ -91,6 +91,17 @@ Device::set_pin_level (uint8_t pin, bool logic_level)
 
 
 void
+Device::flip_pin_level (uint8_t pin)
+{
+	if (pin < kPinsCount)
+	{
+		_pin_levels[pin] = !_pin_levels[pin];
+		_pin_levels_changed = true;
+	}
+}
+
+
+void
 Device::commit()
 {
 	if (_pin_directions_changed)

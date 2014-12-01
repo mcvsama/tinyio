@@ -36,41 +36,63 @@ ControlWidget::ControlWidget (QWidget* parent, tinyio::Device&& device):
 		for (int bit = 0; bit < 8; ++bit)
 		{
 			int pin_i = 8 * port + bit;
-			_pin_widgets[pin_i] = std::make_unique<PinWidget> (this, pin_i);
+			Unique<PinWidget> pin_widget = std::make_unique<PinWidget> (this, pin_i);
+			QObject::connect (pin_widget.get(), &PinWidget::flip_pin_level, std::bind (&ControlWidget::flip_pin_level, this, pin_i));
+			QObject::connect (pin_widget.get(), &PinWidget::set_pin_direction, std::bind (&ControlWidget::set_pin_direction, this, pin_i, std::placeholders::_1));
+			_pin_widgets[pin_i] = std::move (pin_widget);
 			layout->addWidget (_pin_widgets[pin_i].get(), bit, port);
 		}
 	}
-#if 0
-					for (int pin = 0; pin < 24; ++pin)
-						tinyio.configure_pin (pin, tinyio::Input);
-					while (true)
-					{
-						auto in = tinyio.get_pin_levels();
-						for (int i = 0; i < 24; ++i)
-							std::cout << in[i];
-						std::cout << std::endl;
-					}
 
-					for (int pin = 0; pin < 24; ++pin)
-						tinyio.configure_pin (pin, tinyio::Output);
-					for (int z = 0; z < 1000; ++z)
-					{
-						for (int pin = 0; pin < 24; ++pin)
-						{
-							for (int i = 0; i < 20; ++i)
-							{
-								usleep (50000);
-								tinyio.set_pin_level (pin, i % 2 == 0);
-								tinyio.commit();
-						auto in = tinyio.get_pin_levels();
-						for (int i = 0; i < 24; ++i)
-							std::cout << in[i];
-						std::cout << std::endl;
-							}
-							tinyio.set_pin_level (pin, false);
-						}
-					}
-#endif
+	_refresh_timer = std::make_unique<QTimer> (this);
+	_refresh_timer->setInterval (20);
+	_refresh_timer->setSingleShot (false);
+	QObject::connect (_refresh_timer.get(), &QTimer::timeout, this, &ControlWidget::timeout);
+	_refresh_timer->start();
+
+	get_pin_levels();
+}
+
+
+void
+ControlWidget::set_pin_direction (uint8_t pin, tinyio::PinDirection direction)
+{
+	_device.configure_pin (pin, direction);
+	_device.commit();
+}
+
+
+void
+ControlWidget::flip_pin_level (uint8_t pin)
+{
+	_device.flip_pin_level (pin);
+	_device.commit();
+}
+
+
+void
+ControlWidget::get_pin_levels()
+{
+	auto levels = _device.get_pin_levels();
+	for (std::size_t i = 0; i < levels.size(); ++i)
+		_pin_widgets[i]->set_actual_pin_level (levels[i]);
+}
+
+
+void
+ControlWidget::timeout()
+{
+	try {
+		get_pin_levels();
+		_failsafe = false;
+	}
+	catch (...)
+	{
+		// Idea: after first exception is throw, silence all subsequent
+		// exceptions until another operation succeeds.
+		if (!std::exchange (_failsafe, true))
+			throw;
+	}
 }
 
 } // namespace tinyiogui

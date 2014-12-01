@@ -81,6 +81,12 @@ class Device
 	set_pin_level (uint8_t pin, bool logic_level);
 
 	/**
+	 * Set pin logic level to the opposite.
+	 */
+	void
+	flip_pin_level (uint8_t pin);
+
+	/**
 	 * Commit changes.
 	 */
 	void

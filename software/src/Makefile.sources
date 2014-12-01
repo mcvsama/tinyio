@@ -20,6 +20,7 @@ TINYIO_HEADERS += tinyio/gui/control_widget.h
 TINYIO_HEADERS += tinyio/gui/pin_widget.h
 
 TINYIO_MOCHDRS += tinyio/gui/select_device_widget.h
+TINYIO_MOCHDRS += tinyio/gui/pin_widget.h
 
 TINYIO_SOURCES += tinyio/tinyio-gui.cc
 TINYIO_SOURCES += tinyio/tinyio/device.cc

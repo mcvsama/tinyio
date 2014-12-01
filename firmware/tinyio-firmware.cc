@@ -117,18 +117,16 @@ usbFunctionWrite (uint8_t* data, uint8_t len)
 		switch (g_last_request)
 		{
 			case USBControlRequest::ConfigurePins:
-			{
 				port_0_7.configure_as_output_exclusive (PinSet (data[0]));
 				port_15_8.configure_as_output_exclusive (PinSet (data[1]));
 				port_16_23.configure_as_output_exclusive (PinSet (data[2]));
-			}
+				break;
 
 			case USBControlRequest::SetPins:
-			{
 				port_0_7.set_high_exclusive (PinSet (data[0]));
 				port_15_8.set_high_exclusive (PinSet (data[1]));
 				port_16_23.set_high_exclusive (PinSet (data[2]));
-			}
+				break;
 
 			default:
 				break;

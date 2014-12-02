@@ -26,6 +26,7 @@
 // TinyIO:
 #include <tinyio/gui/application.h>
 #include <tinyio/gui/select_device_widget.h>
+#include <tinyio/gui/gui.h>
 
 // Local:
 #include "main_window.h"
@@ -42,8 +43,7 @@ MainWindow::MainWindow (Application* application):
 	_stack->addWidget (_select_device_widget.get());
 	_stack->setCurrentWidget (_select_device_widget.get());
 
-	QObject::connect (_select_device_widget.get(), &SelectDeviceWidget::selected,
-					  this, &MainWindow::device_selected);
+	QObject::connect (_select_device_widget.get(), &SelectDeviceWidget::selected, this, &MainWindow::connect);
 
 	setWindowTitle ("TinyIO");
 }
@@ -70,26 +70,37 @@ MainWindow::make_control_widget_wrapper (ControlWidget* control_widget)
 {
 	auto result = std::make_unique<QWidget> (this);
 
-	auto disconnect_button = new QPushButton ("Disconnect", result.get());
+	auto frame = new QFrame (result.get());
+	frame->setFrameShadow (QFrame::Sunken);
+	frame->setFrameShape (QFrame::StyledPanel);
 
-	auto hold_button = new QPushButton ("&Hold changes", result.get());
-	hold_button->setCheckable (true);
+	_disconnect_button = new QPushButton ("Disconnect", result.get());
+	prepare_button (_disconnect_button);
+	QObject::connect (_disconnect_button, &QPushButton::clicked, this, &MainWindow::disconnect);
+
+	_hold_button = new QPushButton ("&Hold changes", result.get());
+	prepare_button (_hold_button);
+	_hold_button->setCheckable (true);
+	QObject::connect (_hold_button, &QPushButton::clicked, this, &MainWindow::forward_settings);
 
 	auto buttons_layout = new QHBoxLayout();
-	buttons_layout->addWidget (disconnect_button);
+	buttons_layout->addWidget (_disconnect_button);
 	buttons_layout->addItem (new QSpacerItem (0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
-	buttons_layout->addWidget (hold_button);
+	buttons_layout->addWidget (_hold_button);
 
 	auto layout = new QVBoxLayout (result.get());
 	layout->addLayout (buttons_layout);
-	layout->addWidget (control_widget);
+	layout->addWidget (frame);
+
+	auto frame_layout = new QVBoxLayout (frame);
+	frame_layout->addWidget (control_widget);
 
 	return result;
 }
 
 
 void
-MainWindow::device_selected()
+MainWindow::connect()
 {
 	auto device_info = _select_device_widget->selected_device_info();
 
@@ -118,6 +129,23 @@ MainWindow::device_selected()
 		QMessageBox::warning (this, "Connection error", "Failed to find selected device.");
 		show_selector();
 	}
+}
+
+
+void
+MainWindow::disconnect()
+{
+	delete _control_widget;
+	_control_widget_wrapper.reset();
+	show_selector();
+}
+
+
+void
+MainWindow::forward_settings()
+{
+	if (_control_widget && _hold_button)
+		_control_widget->set_hold (_hold_button->isChecked());
 }
 
 } // namespace tinyiogui

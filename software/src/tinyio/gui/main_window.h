@@ -58,7 +58,21 @@ class MainWindow: public QWidget
 	 * Called when user selects a device.
 	 */
 	void
-	device_selected();
+	connect();
+
+	/**
+	 * Disconnect from device and show selector
+	 * dialog again.
+	 */
+	void
+	disconnect();
+
+	/**
+	 * Inform the control widget about
+	 * holdoff button state.
+	 */
+	void
+	forward_settings();
 
   private:
 	Application*				_application;
@@ -66,6 +80,8 @@ class MainWindow: public QWidget
 	Unique<SelectDeviceWidget>	_select_device_widget;
 	Unique<QWidget>				_control_widget_wrapper;
 	ControlWidget*				_control_widget; // Will be owned by the wrapper.
+	QPushButton*				_disconnect_button;
+	QPushButton*				_hold_button;
 };
 
 } // namespace tinyiogui

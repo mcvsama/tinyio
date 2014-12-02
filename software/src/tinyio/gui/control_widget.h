@@ -34,6 +34,13 @@ class ControlWidget: public QWidget
 	// Ctor
 	ControlWidget (QWidget* parent, tinyio::Device&&);
 
+	/**
+	 * Enable/disable "hold" function (inhibit commiting
+	 * changes until "hold" is disabled).
+	 */
+	void
+	set_hold (bool enabled);
+
   public slots:
 	/**
 	 * Set pin direction (input/output).
@@ -65,7 +72,8 @@ class ControlWidget: public QWidget
 	std::array<Unique<PinWidget>, 24>	_pin_widgets;
 	Unique<QTimer>						_refresh_timer;
 	// If true, exceptions are silenced:
-	bool								_failsafe;
+	bool								_failsafe		= false;
+	bool								_hold_enabled	= false;
 };
 
 } // namespace tinyiogui

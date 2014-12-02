@@ -42,8 +42,26 @@ PinWidget::PinWidget (QWidget* parent, uint8_t pin):
 	layout->addItem (new QSpacerItem (0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
 
 	_menu = new QMenu (this);
+	_menu->addAction ("&Rename", this, SLOT (rename()));
+	_menu->addSeparator();
 	_menu->addAction ("Configure as &input", this, SLOT (configure_as_input()));
 	_menu->addAction ("Configure as &output", this, SLOT (configure_as_output()));
+}
+
+
+void
+PinWidget::set_configured_pin_direction (tinyio::PinDirection direction)
+{
+	_configured_direction = direction;
+	update_gui();
+}
+
+
+void
+PinWidget::set_actual_pin_direction (tinyio::PinDirection direction)
+{
+	_actual_direction = direction;
+	update_gui();
 }
 
 
@@ -68,7 +86,7 @@ PinWidget::update_gui()
 {
 	QColor on, off;
 
-	switch (_direction)
+	switch (_actual_direction)
 	{
 		case tinyio::Input:
 			if (_configured_level == true)
@@ -89,7 +107,10 @@ PinWidget::update_gui()
 			break;
 	}
 
-	_button->setText (_configured_level ? "↑" : "↓");
+	QString dir_str = (_configured_direction == tinyio::Input) ? "I" : "O";
+	QString level_str = _configured_level ? "↑" : "↓";
+	_button->setText (dir_str + level_str);
+
 	set_button_color (_button.get(), _actual_level ? on : off);
 }
 
@@ -110,16 +131,16 @@ PinWidget::mousePressEvent (QMouseEvent* event)
 void
 PinWidget::configure_as_input()
 {
-	_direction = tinyio::Input;
-	set_pin_direction (_direction);
+	_configured_direction = tinyio::Input;
+	set_pin_direction (_configured_direction);
 }
 
 
 void
 PinWidget::configure_as_output()
 {
-	_direction = tinyio::Output;
-	set_pin_direction (_direction);
+	_configured_direction = tinyio::Output;
+	set_pin_direction (_configured_direction);
 }
 
 

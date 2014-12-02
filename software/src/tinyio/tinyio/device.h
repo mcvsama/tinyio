@@ -74,6 +74,12 @@ class Device
 	configure_pin (uint8_t pin, PinDirection);
 
 	/**
+	 * Return configured pin direction.
+	 */
+	PinDirection
+	get_pin_direction (uint8_t pin) const;
+
+	/**
 	 * Set given pin output level.
 	 * Nothing is done until commit() is called.
 	 */
@@ -98,6 +104,12 @@ class Device
 	 */
 	void
 	commit();
+
+	/**
+	 * Get all pin directions.
+	 */
+	std::array<PinDirection, kPinsCount>
+	get_pin_directions();
 
 	/**
 	 * Get all pin levels.

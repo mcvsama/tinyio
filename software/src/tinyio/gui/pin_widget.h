@@ -35,6 +35,18 @@ class PinWidget: public QWidget
 	PinWidget (QWidget* parent, uint8_t pin);
 
 	/**
+	 * Set configured pin direction.
+	 */
+	void
+	set_configured_pin_direction (tinyio::PinDirection);
+
+	/**
+	 * Set actual pin direction.
+	 */
+	void
+	set_actual_pin_direction (tinyio::PinDirection);
+
+	/**
 	 * Set configured pin level.
 	 */
 	void
@@ -53,6 +65,12 @@ class PinWidget: public QWidget
 	update_gui();
 
   signals:
+	/**
+	 * Rename slot.
+	 */
+	void
+	rename();
+
 	/**
 	 * Emitted when logic level should be switched.
 	 */
@@ -98,12 +116,13 @@ class PinWidget: public QWidget
 
   private:
 	uint8_t					_pin;
-	bool					_configured_level	= false;
-	bool					_actual_level		= false;
+	bool					_configured_level		= false;
+	bool					_actual_level			= false;
+	tinyio::PinDirection	_configured_direction	= tinyio::Input;
+	tinyio::PinDirection	_actual_direction		= tinyio::Input;
 	Unique<QPushButton>		_button;
 	Unique<QLabel>			_label;
 	Unique<QLabel>			_io_label;
-	tinyio::PinDirection	_direction			= tinyio::Input;
 	QMenu*					_menu;
 };
 

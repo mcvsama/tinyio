@@ -16,7 +16,6 @@
 
 // Lib:
 #include <QtWidgets/QGridLayout>
-#include <QtWidgets/QPushButton>
 
 // Local:
 #include "control_widget.h"
@@ -60,10 +59,21 @@ ControlWidget::ControlWidget (QWidget* parent, tinyio::Device&& device):
 
 
 void
+ControlWidget::set_hold (bool enabled)
+{
+	_hold_enabled = enabled;
+
+	if (!_hold_enabled)
+		_device.commit();
+}
+
+
+void
 ControlWidget::set_pin_direction (uint8_t pin, tinyio::PinDirection direction)
 {
 	_device.configure_pin (pin, direction);
-	_device.commit();
+	if (!_hold_enabled)
+		_device.commit();
 }
 
 
@@ -71,7 +81,8 @@ void
 ControlWidget::flip_pin_level (uint8_t pin)
 {
 	_device.flip_pin_level (pin);
-	_device.commit();
+	if (!_hold_enabled)
+		_device.commit();
 }
 
 
@@ -79,8 +90,13 @@ void
 ControlWidget::get_pin_levels()
 {
 	auto levels = _device.get_pin_levels();
+	auto directions = _device.get_pin_directions();
+
 	for (std::size_t i = 0; i < levels.size(); ++i)
 	{
+		_pin_widgets[i]->set_actual_pin_direction (directions[i]);
+		_pin_widgets[i]->set_configured_pin_direction (_device.get_pin_direction (i));
+
 		_pin_widgets[i]->set_actual_pin_level (levels[i]);
 		_pin_widgets[i]->set_configured_pin_level (_device.get_pin_level (i));
 	}

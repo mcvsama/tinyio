@@ -18,6 +18,7 @@ TINYIO_HEADERS += tinyio/gui/main_window.h
 TINYIO_HEADERS += tinyio/gui/select_device_widget.h
 TINYIO_HEADERS += tinyio/gui/control_widget.h
 TINYIO_HEADERS += tinyio/gui/pin_widget.h
+TINYIO_HEADERS += tinyio/gui/gui.h
 
 TINYIO_MOCHDRS += tinyio/gui/select_device_widget.h
 TINYIO_MOCHDRS += tinyio/gui/pin_widget.h
@@ -31,6 +32,7 @@ TINYIO_SOURCES += tinyio/gui/main_window.cc
 TINYIO_SOURCES += tinyio/gui/select_device_widget.cc
 TINYIO_SOURCES += tinyio/gui/control_widget.cc
 TINYIO_SOURCES += tinyio/gui/pin_widget.cc
+TINYIO_SOURCES += tinyio/gui/gui.cc
 
 ################
 

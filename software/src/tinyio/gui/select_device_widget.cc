@@ -18,6 +18,9 @@
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QPushButton>
 
+// TinyIO:
+#include <tinyio/gui/gui.h>
+
 // Local:
 #include "select_device_widget.h"
 
@@ -31,9 +34,11 @@ SelectDeviceWidget::SelectDeviceWidget (QWidget* parent, tinyio::DeviceManager* 
 	auto label = new QLabel ("Select TinyIO device:", this);
 
 	auto refresh_button = new QPushButton ("&Refresh", this);
+	prepare_button (refresh_button);
 	QObject::connect (refresh_button, &QPushButton::clicked, this, &SelectDeviceWidget::refresh_list);
 
 	_select_button = new QPushButton ("&Select ✓", this);
+	prepare_button (_select_button);
 	QObject::connect (_select_button, &QPushButton::clicked, this, &SelectDeviceWidget::select_pressed);
 
 	_devices_combobox = new QComboBox (this);

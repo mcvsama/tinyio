@@ -76,6 +76,15 @@ Device::configure_pin (uint8_t pin, PinDirection dir)
 }
 
 
+PinDirection
+Device::get_pin_direction (uint8_t pin) const
+{
+	if (pin < kPinsCount)
+		return _pin_directions[pin];
+	return Input;
+}
+
+
 void
 Device::set_pin_level (uint8_t pin, bool logic_level)
 {
@@ -115,7 +124,7 @@ Device::commit()
 {
 	if (_pin_directions_changed)
 	{
-		_usb_device.send (libusb::ControlTransfer (static_cast<uint8_t> (USBControlRequest::ConfigurePins), 0, 0), 0, get_mask (_pin_directions));
+		_usb_device.send (libusb::ControlTransfer (static_cast<uint8_t> (USBControlRequest::SetDirections), 0, 0), 0, get_mask (_pin_directions));
 		_pin_directions_changed = false;
 	}
 
@@ -124,6 +133,17 @@ Device::commit()
 		_usb_device.send (libusb::ControlTransfer (static_cast<uint8_t> (USBControlRequest::SetPins), 0, 0), 0, get_mask (_pin_levels));
 		_pin_levels_changed = false;
 	}
+}
+
+
+std::array<PinDirection, Device::kPinsCount>
+Device::get_pin_directions()
+{
+	auto bits = get_bits (_usb_device.receive (libusb::ControlTransfer (static_cast<uint8_t> (USBControlRequest::GetDirections), 0, 0), 0));
+	std::array<PinDirection, kPinsCount> result;
+	for (std::size_t i = 0; i < bits.size(); ++i)
+		result[i] = static_cast<PinDirection> (bits[i]);
+	return result;
 }
 
 

@@ -58,8 +58,9 @@ template<size_t P, size_t O>
 	Blinker<P, O>::blink (size_t blinks)
 	{
 		size_t n = blinks * kBlinkPeriod;
+
 		if (n > _request_cnt)
-			_request_cnt = n;
+			_request_cnt = (_request_cnt % kBlinkPeriod) + n;
 	}
 
 

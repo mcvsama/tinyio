@@ -19,6 +19,7 @@
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QMenu>
+#include <QtWidgets/QLineEdit>
 
 // TinyIO:
 #include <tinyio/tinyio/device.h>
@@ -65,12 +66,6 @@ class PinWidget: public QWidget
 	update_gui();
 
   signals:
-	/**
-	 * Rename slot.
-	 */
-	void
-	rename();
-
 	/**
 	 * Emitted when logic level should be switched.
 	 */
@@ -120,9 +115,9 @@ class PinWidget: public QWidget
 	bool					_actual_level			= false;
 	tinyio::PinDirection	_configured_direction	= tinyio::Input;
 	tinyio::PinDirection	_actual_direction		= tinyio::Input;
-	Unique<QPushButton>		_button;
-	Unique<QLabel>			_label;
-	Unique<QLabel>			_io_label;
+	QPushButton*			_button;
+	QLineEdit*				_label;
+	QLabel*					_io_label;
 	QMenu*					_menu;
 };
 

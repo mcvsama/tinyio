@@ -16,6 +16,7 @@
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLayout>
 #include <QtWidgets/QMenu>
+#include <QtWidgets/QLineEdit>
 #include <QtGui/QMouseEvent>
 
 // Local:
@@ -31,19 +32,18 @@ PinWidget::PinWidget (QWidget* parent, uint8_t pin):
 	auto layout = new QHBoxLayout (this);
 	layout->setMargin (0);
 
-	_button = std::make_unique<QPushButton> ("", this);
+	_button = new QPushButton ("", this);
 	_button->setFixedSize (_button->size().height(), _button->size().height());
-	QObject::connect (_button.get(), &QPushButton::clicked, this, &PinWidget::button_pressed);
+	QObject::connect (_button, &QPushButton::clicked, this, &PinWidget::button_pressed);
 
-	_label = std::make_unique<QLabel> (QString::number (pin), this);
+	_label = new QLineEdit (this);
+	_label->setText (QString::number (pin));
 
-	layout->addWidget (_button.get());
-	layout->addWidget (_label.get());
+	layout->addWidget (_button);
+	layout->addWidget (_label);
 	layout->addItem (new QSpacerItem (0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
 
 	_menu = new QMenu (this);
-	_menu->addAction ("&Rename", this, SLOT (rename()));
-	_menu->addSeparator();
 	_menu->addAction ("Configure as &input", this, SLOT (configure_as_input()));
 	_menu->addAction ("Configure as &output", this, SLOT (configure_as_output()));
 }
@@ -111,7 +111,7 @@ PinWidget::update_gui()
 	QString level_str = _configured_level ? "↑" : "↓";
 	_button->setText (dir_str + level_str);
 
-	set_button_color (_button.get(), _actual_level ? on : off);
+	set_button_color (_button, _actual_level ? on : off);
 }
 
 

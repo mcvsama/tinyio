@@ -84,7 +84,7 @@ usbFunctionSetup (uint8_t data[8])
 
 	switch (g_last_request)
 	{
-		case USBControlRequest::ConfigurePins:
+		case USBControlRequest::SetDirections:
 		case USBControlRequest::SetPins:
 		{
 			uint8_t len = req->wLength.word;
@@ -96,6 +96,7 @@ usbFunctionSetup (uint8_t data[8])
 				break;
 		}
 
+		case USBControlRequest::GetDirections:
 		case USBControlRequest::GetPins:
 			// Request call to usbFunctionRead():
 			return USB_NO_MSG;
@@ -116,7 +117,7 @@ usbFunctionWrite (uint8_t* data, uint8_t len)
 
 		switch (g_last_request)
 		{
-			case USBControlRequest::ConfigurePins:
+			case USBControlRequest::SetDirections:
 				port_0_7.configure_as_output_exclusive (PinSet (data[0]));
 				port_15_8.configure_as_output_exclusive (PinSet (data[1]));
 				port_16_23.configure_as_output_exclusive (PinSet (data[2]));
@@ -143,10 +144,23 @@ usbFunctionRead (uint8_t* data, uint8_t len)
 {
 	if (len >= 3)
 	{
-		data[0] = port_0_7.read();
-		data[1] = port_15_8.read();
-		data[2] = port_16_23.read();
-		return 3;
+		switch (g_last_request)
+		{
+			case USBControlRequest::GetDirections:
+				data[0] = port_0_7.dir();
+				data[1] = port_15_8.dir();
+				data[2] = port_16_23.dir();
+				return 3;
+
+			case USBControlRequest::GetPins:
+				data[0] = port_0_7.read();
+				data[1] = port_15_8.read();
+				data[2] = port_16_23.read();
+				return 3;
+
+			default:
+				return 0;
+		}
 	}
 	else
 		return 0;

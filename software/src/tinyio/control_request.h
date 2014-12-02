@@ -18,9 +18,10 @@ namespace tinyio {
 
 enum class USBControlRequest: uint8_t
 {
-	ConfigurePins	= 1,	// Bit 0 = input, bit 1 = output
-	SetPins			= 2,	// Bit 0 = low, bit 1 = high
-	GetPins			= 3,	// Bit 0 = low, 1 = high
+	SetDirections	= 1,	// Bit 0 = input, bit 1 = output
+	GetDirections	= 2,	// Bit 0 = input, bit 1 = output
+	SetPins			= 3,	// Bit 0 = low, bit 1 = high
+	GetPins			= 4,	// Bit 0 = low, 1 = high
 };
 
 } // namespace tinyio

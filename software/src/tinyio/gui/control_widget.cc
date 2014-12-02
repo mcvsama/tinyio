@@ -38,7 +38,7 @@ ControlWidget::ControlWidget (QWidget* parent, tinyio::Device&& device):
 	auto info_label = new QLabel ("Green → high Z • Blue → pull-up • Red → output");
 
 	_refresh_timer = std::make_unique<QTimer> (this);
-	_refresh_timer->setInterval (20);
+	_refresh_timer->setInterval (10);
 	_refresh_timer->setSingleShot (false);
 	QObject::connect (_refresh_timer.get(), &QTimer::timeout, this, &ControlWidget::timeout);
 	_refresh_timer->start();

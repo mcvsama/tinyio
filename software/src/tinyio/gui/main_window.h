@@ -50,7 +50,7 @@ class MainWindow: public QWidget
 	/**
 	 * Create control widget wrapper.
 	 */
-	Unique<QWidget>
+	QWidget*
 	make_control_widget_wrapper (ControlWidget*);
 
   private slots:
@@ -76,9 +76,9 @@ class MainWindow: public QWidget
 
   private:
 	Application*				_application;
-	Unique<QStackedLayout>		_stack;
-	Unique<SelectDeviceWidget>	_select_device_widget;
-	Unique<QWidget>				_control_widget_wrapper;
+	QStackedLayout*				_stack;
+	SelectDeviceWidget*			_select_device_widget;
+	QWidget*					_control_widget_wrapper;
 	ControlWidget*				_control_widget; // Will be owned by the wrapper.
 	QPushButton*				_disconnect_button;
 	QPushButton*				_hold_button;

@@ -37,13 +37,13 @@ namespace tinyiogui {
 MainWindow::MainWindow (Application* application):
 	_application (application)
 {
-	_select_device_widget = std::make_unique <SelectDeviceWidget> (this, application->device_manager());
+	_select_device_widget = new SelectDeviceWidget (this, application->device_manager());
 
-	_stack = std::make_unique<QStackedLayout> (this);
-	_stack->addWidget (_select_device_widget.get());
-	_stack->setCurrentWidget (_select_device_widget.get());
+	_stack = new QStackedLayout (this);
+	_stack->addWidget (_select_device_widget);
+	_stack->setCurrentWidget (_select_device_widget);
 
-	QObject::connect (_select_device_widget.get(), &SelectDeviceWidget::selected, this, &MainWindow::connect);
+	QObject::connect (_select_device_widget, &SelectDeviceWidget::selected, this, &MainWindow::connect);
 
 	setWindowTitle ("TinyIO");
 }
@@ -53,7 +53,7 @@ void
 MainWindow::show_selector()
 {
 	_select_device_widget->refresh_list();
-	_stack->setCurrentWidget (_select_device_widget.get());
+	_stack->setCurrentWidget (_select_device_widget);
 }
 
 
@@ -61,24 +61,24 @@ void
 MainWindow::show_control_widget()
 {
 	if (_control_widget_wrapper && _control_widget)
-		_stack->setCurrentWidget (_control_widget_wrapper.get());
+		_stack->setCurrentWidget (_control_widget_wrapper);
 }
 
 
-Unique<QWidget>
+QWidget*
 MainWindow::make_control_widget_wrapper (ControlWidget* control_widget)
 {
-	auto result = std::make_unique<QWidget> (this);
+	auto result = new QWidget (this);
 
-	auto frame = new QFrame (result.get());
+	auto frame = new QFrame (result);
 	frame->setFrameShadow (QFrame::Sunken);
 	frame->setFrameShape (QFrame::StyledPanel);
 
-	_disconnect_button = new QPushButton ("Disconnect", result.get());
+	_disconnect_button = new QPushButton ("Disconnect", result);
 	prepare_button (_disconnect_button);
 	QObject::connect (_disconnect_button, &QPushButton::clicked, this, &MainWindow::disconnect);
 
-	_hold_button = new QPushButton ("&Hold changes", result.get());
+	_hold_button = new QPushButton ("&Hold changes", result);
 	prepare_button (_hold_button);
 	_hold_button->setCheckable (true);
 	QObject::connect (_hold_button, &QPushButton::clicked, this, &MainWindow::forward_settings);
@@ -88,7 +88,7 @@ MainWindow::make_control_widget_wrapper (ControlWidget* control_widget)
 	buttons_layout->addItem (new QSpacerItem (0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
 	buttons_layout->addWidget (_hold_button);
 
-	auto layout = new QVBoxLayout (result.get());
+	auto layout = new QVBoxLayout (result);
 	layout->addLayout (buttons_layout);
 	layout->addWidget (frame);
 
@@ -113,7 +113,7 @@ MainWindow::connect()
 
 			// Make control widget wrapper:
 			_control_widget_wrapper = make_control_widget_wrapper (_control_widget);
-			_stack->addWidget (_control_widget_wrapper.get());
+			_stack->addWidget (_control_widget_wrapper);
 
 			show_control_widget();
 		}
@@ -135,8 +135,8 @@ MainWindow::connect()
 void
 MainWindow::disconnect()
 {
-	delete _control_widget;
-	_control_widget_wrapper.reset();
+	delete _control_widget_wrapper;
+	_control_widget_wrapper = nullptr;
 	show_selector();
 }
 
@@ -144,7 +144,7 @@ MainWindow::disconnect()
 void
 MainWindow::forward_settings()
 {
-	if (_control_widget && _hold_button)
+	if (_control_widget)
 		_control_widget->set_hold (_hold_button->isChecked());
 }
 

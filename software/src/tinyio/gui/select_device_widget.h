@@ -37,8 +37,8 @@ class SelectDeviceWidget: public QWidget
 	/**
 	 * Return DeviceInfo for the selected device.
 	 */
-	Optional<tinyio::DeviceInfo>
-	selected_device_info() const;
+	Optional<QString>
+	selected_device_serial() const;
 
 	/**
 	 * Re-read USB device list and refresh the combo-box.

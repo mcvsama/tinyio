@@ -32,7 +32,14 @@ namespace tinyio {
 Device::Device (libusb::Device&& usb_device):
 	_usb_device (std::move (usb_device))
 {
-	reset();
+	commit (_config, true);
+}
+
+
+bool
+Device::good()
+{
+	return _usb_device.good();
 }
 
 
@@ -51,103 +58,30 @@ Device::serial_number() const
 
 
 void
-Device::reset()
+Device::commit (DeviceConfig const& new_config, bool force)
 {
-	for (std::size_t i = 0; i < kPinsCount; ++i)
-	{
-		configure_pin (i, Input);
-		set_pin_level (i, false);
-	}
-	commit();
+	if (_config._pin_directions != new_config._pin_directions || force)
+		_usb_device.send (libusb::ControlTransfer (static_cast<uint8_t> (USBControlRequest::SetDirections), 0, 0), 0, get_mask (new_config._pin_directions));
+
+	if (_config._pin_levels != new_config._pin_levels || force)
+		_usb_device.send (libusb::ControlTransfer (static_cast<uint8_t> (USBControlRequest::SetPins), 0, 0), 0, get_mask (new_config._pin_levels));
+
+	_config = new_config;
 }
 
 
-void
-Device::configure_pin (uint8_t pin, PinDirection dir)
-{
-	if (pin < kPinsCount)
-	{
-		if (_pin_directions[pin] != dir)
-		{
-			_pin_directions[pin] = dir;
-			_pin_directions_changed = true;
-		}
-	}
-}
-
-
-PinDirection
-Device::get_pin_direction (uint8_t pin) const
-{
-	if (pin < kPinsCount)
-		return _pin_directions[pin];
-	return Input;
-}
-
-
-void
-Device::set_pin_level (uint8_t pin, bool logic_level)
-{
-	if (pin < kPinsCount)
-	{
-		if (_pin_levels[pin] != logic_level)
-		{
-			_pin_levels[pin] = logic_level;
-			_pin_levels_changed = true;
-		}
-	}
-}
-
-
-bool
-Device::get_pin_level (uint8_t pin) const
-{
-	if (pin < kPinsCount)
-		return _pin_levels[pin];
-	return false;
-}
-
-
-void
-Device::flip_pin_level (uint8_t pin)
-{
-	if (pin < kPinsCount)
-	{
-		_pin_levels[pin] = !_pin_levels[pin];
-		_pin_levels_changed = true;
-	}
-}
-
-
-void
-Device::commit()
-{
-	if (_pin_directions_changed)
-	{
-		_usb_device.send (libusb::ControlTransfer (static_cast<uint8_t> (USBControlRequest::SetDirections), 0, 0), 0, get_mask (_pin_directions));
-		_pin_directions_changed = false;
-	}
-
-	if (_pin_levels_changed)
-	{
-		_usb_device.send (libusb::ControlTransfer (static_cast<uint8_t> (USBControlRequest::SetPins), 0, 0), 0, get_mask (_pin_levels));
-		_pin_levels_changed = false;
-	}
-}
-
-
-std::array<PinDirection, Device::kPinsCount>
+std::array<PinDirection, DeviceConfig::kPinsCount>
 Device::get_pin_directions()
 {
 	auto bits = get_bits (_usb_device.receive (libusb::ControlTransfer (static_cast<uint8_t> (USBControlRequest::GetDirections), 0, 0), 0));
-	std::array<PinDirection, kPinsCount> result;
+	std::array<PinDirection, DeviceConfig::kPinsCount> result;
 	for (std::size_t i = 0; i < bits.size(); ++i)
 		result[i] = static_cast<PinDirection> (bits[i]);
 	return result;
 }
 
 
-std::array<bool, Device::kPinsCount>
+std::array<bool, DeviceConfig::kPinsCount>
 Device::get_pin_levels()
 {
 	return get_bits (_usb_device.receive (libusb::ControlTransfer (static_cast<uint8_t> (USBControlRequest::GetPins), 0, 0), 0));
@@ -156,9 +90,9 @@ Device::get_pin_levels()
 
 template<class T>
 	inline std::vector<uint8_t>
-	Device::get_mask (std::array<T, kPinsCount> const& bit_array)
+	Device::get_mask (std::array<T, DeviceConfig::kPinsCount> const& bit_array)
 	{
-		std::size_t n_bytes = kPinsCount / 8;
+		std::size_t n_bytes = DeviceConfig::kPinsCount / 8;
 		std::vector<uint8_t> result (n_bytes, 0);
 
 		for (std::size_t byte = 0; byte < n_bytes; ++byte)
@@ -176,12 +110,12 @@ template<class T>
 	}
 
 
-inline std::array<bool, Device::kPinsCount>
+inline std::array<bool, DeviceConfig::kPinsCount>
 Device::get_bits (std::vector<uint8_t> const& bytes)
 {
-	std::array<bool, kPinsCount> result;
+	std::array<bool, DeviceConfig::kPinsCount> result;
 
-	if (bytes.size() == kPinsCount / 8)
+	if (bytes.size() == DeviceConfig::kPinsCount / 8)
 	{
 		for (std::size_t byte = 0; byte < bytes.size(); ++byte)
 		{

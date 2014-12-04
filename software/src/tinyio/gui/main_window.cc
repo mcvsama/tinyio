@@ -102,14 +102,12 @@ MainWindow::make_control_widget_wrapper (ControlWidget* control_widget)
 void
 MainWindow::connect()
 {
-	auto device_info = _select_device_widget->selected_device_info();
+	auto device_serial = _select_device_widget->selected_device_serial();
 
-	if (device_info)
+	if (device_serial)
 	{
 		try {
-			// Open device:
-			tinyio::Device device = device_info->open();
-			_control_widget = new ControlWidget (this, std::move (device));
+			_control_widget = new ControlWidget (this, _application, device_serial->toStdString());
 
 			// Make control widget wrapper:
 			_control_widget_wrapper = make_control_widget_wrapper (_control_widget);

@@ -17,17 +17,21 @@
 // Lib:
 #include <QtWidgets/QGridLayout>
 
+// TinyIO:
+#include <tinyio/gui/application.h>
+
 // Local:
 #include "control_widget.h"
 
 
 namespace tinyiogui {
 
-ControlWidget::ControlWidget (QWidget* parent, tinyio::Device&& device):
+ControlWidget::ControlWidget (QWidget* parent, Application* application, std::string const& device_serial):
 	QWidget (parent),
-	_device (std::move (device))
+	_application (application),
+	_device_serial (device_serial)
 {
-	for (std::size_t pin = 0; pin < tinyio::Device::kPinsCount; ++pin)
+	for (std::size_t pin = 0; pin < tinyio::DeviceConfig::kPinsCount; ++pin)
 	{
 		Unique<PinWidget> pin_widget = std::make_unique<PinWidget> (this, pin);
 		QObject::connect (pin_widget.get(), &PinWidget::flip_pin_level, std::bind (&ControlWidget::flip_pin_level, this, pin));
@@ -43,6 +47,12 @@ ControlWidget::ControlWidget (QWidget* parent, tinyio::Device&& device):
 	QObject::connect (_refresh_timer.get(), &QTimer::timeout, this, &ControlWidget::timeout);
 	_refresh_timer->start();
 
+	_reconnect_timer = std::make_unique<QTimer> (this);
+	_reconnect_timer->setInterval (200);
+	_reconnect_timer->setSingleShot (false);
+	QObject::connect (_reconnect_timer.get(), &QTimer::timeout, this, &ControlWidget::reconnect);
+	_reconnect_timer->start();
+
 	auto grid_layout = new QGridLayout();
 	grid_layout->setMargin (0);
 	for (int port = 0; port < 3; ++port)
@@ -54,6 +64,7 @@ ControlWidget::ControlWidget (QWidget* parent, tinyio::Device&& device):
 	layout->addLayout (grid_layout);
 	layout->addWidget (info_label);
 
+	reconnect();
 	get_pin_levels();
 }
 
@@ -62,44 +73,52 @@ void
 ControlWidget::set_hold (bool enabled)
 {
 	_hold_enabled = enabled;
-
-	if (!_hold_enabled)
-		_device.commit();
+	commit();
 }
 
 
 void
 ControlWidget::set_pin_direction (uint8_t pin, tinyio::PinDirection direction)
 {
-	_device.configure_pin (pin, direction);
-	if (!_hold_enabled)
-		_device.commit();
+	_device_config.configure_pin (pin, direction);
+	commit();
 }
 
 
 void
 ControlWidget::flip_pin_level (uint8_t pin)
 {
-	_device.flip_pin_level (pin);
-	if (!_hold_enabled)
-		_device.commit();
+	_device_config.flip_pin_level (pin);
+	commit();
 }
 
 
 void
 ControlWidget::get_pin_levels()
 {
-	auto levels = _device.get_pin_levels();
-	auto directions = _device.get_pin_directions();
-
-	for (std::size_t i = 0; i < levels.size(); ++i)
+	if (_device)
 	{
-		_pin_widgets[i]->set_actual_pin_direction (directions[i]);
-		_pin_widgets[i]->set_configured_pin_direction (_device.get_pin_direction (i));
+		auto levels = _device->get_pin_levels();
+		auto directions = _device->get_pin_directions();
 
-		_pin_widgets[i]->set_actual_pin_level (levels[i]);
-		_pin_widgets[i]->set_configured_pin_level (_device.get_pin_level (i));
+		for (std::size_t i = 0; i < levels.size(); ++i)
+		{
+			_pin_widgets[i]->set_actual_pin_direction (directions[i]);
+			_pin_widgets[i]->set_configured_pin_direction (_device_config.get_pin_direction (i));
+
+			_pin_widgets[i]->set_actual_pin_level (levels[i]);
+			_pin_widgets[i]->set_configured_pin_level (_device_config.get_pin_level (i));
+		}
 	}
+}
+
+
+void
+ControlWidget::commit()
+{
+	if (_device)
+		if (!_hold_enabled)
+			_device->commit (_device_config);
 }
 
 
@@ -112,8 +131,32 @@ ControlWidget::timeout()
 	}
 	catch (...)
 	{
-		// Idea: after first exception is throw, silence all subsequent
-		// exceptions until another operation succeeds.
+		// Idea: after first exception is thrown, silence all subsequent
+		// exceptions until an operation succeeds.
+		if (!std::exchange (_failsafe, true))
+			throw;
+	}
+}
+
+
+void
+ControlWidget::reconnect()
+{
+	try {
+		if (!_device || !_device->good())
+		{
+			auto device_info = _application->device_manager()->find_by_serial (_device_serial);
+
+			if (device_info)
+			{
+				_device = std::make_unique<tinyio::Device> (std::move (device_info->open()));
+				commit();
+				_failsafe = false;
+			}
+		}
+	}
+	catch (...)
+	{
 		if (!std::exchange (_failsafe, true))
 			throw;
 	}

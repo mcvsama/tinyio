@@ -79,7 +79,7 @@ class MainWindow: public QWidget
 	QStackedLayout*				_stack;
 	SelectDeviceWidget*			_select_device_widget;
 	QWidget*					_control_widget_wrapper;
-	ControlWidget*				_control_widget; // Will be owned by the wrapper.
+	ControlWidget*				_control_widget = nullptr; // Will be owned by the wrapper.
 	QPushButton*				_disconnect_button;
 	QPushButton*				_hold_button;
 };

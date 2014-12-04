@@ -63,13 +63,13 @@ SelectDeviceWidget::SelectDeviceWidget (QWidget* parent, tinyio::DeviceManager* 
 }
 
 
-Optional<tinyio::DeviceInfo>
-SelectDeviceWidget::selected_device_info() const
+Optional<QString>
+SelectDeviceWidget::selected_device_serial() const
 {
-	auto address_variant = _devices_combobox->currentData();
+	auto serial_number_variant = _devices_combobox->currentData();
 
-	if (address_variant.isValid())
-		return _device_manager->find_by_address (address_variant.toUInt());
+	if (serial_number_variant.isValid())
+		return serial_number_variant.toString();
 	else
 		return { };
 }
@@ -86,7 +86,7 @@ SelectDeviceWidget::refresh_list()
 			auto tinyio = dev_info.open();
 			_devices_combobox->addItem ("TinyIO " + QString::fromStdString (tinyio.release_version_str()) +
 										", S/N: " + QString::fromStdString (tinyio.serial_number()),
-										dev_info.address());
+										QString::fromStdString (tinyio.serial_number()));
 		}
 		// Don't care if we couldn't open device now:
 		catch (libusb::Exception const&)

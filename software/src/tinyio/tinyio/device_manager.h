@@ -46,6 +46,19 @@ class DeviceManager
 	Optional<DeviceInfo>
 	find_by_address (uint8_t address) const;
 
+	/**
+	 * Find device by serial number.
+	 */
+	Optional<DeviceInfo>
+	find_by_serial (std::string const& serial) const;
+
+  private:
+	/**
+	 * Rethrow only memory error, otherwise just log on std::cerr.
+	 */
+	static void
+	rethrow_if_serious (libusb::StatusException const&);
+
   private:
 	libusb::Bus _bus;
 };

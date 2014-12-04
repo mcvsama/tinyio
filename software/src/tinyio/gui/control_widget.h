@@ -22,17 +22,20 @@
 #include <QtWidgets/QWidget>
 
 // TinyIO:
-#include <tinyio/tinyio/device.h>
+#include <tinyio/tinyio/device_info.h>
 #include <tinyio/gui/pin_widget.h>
 
 
 namespace tinyiogui {
 
+class Application;
+
+
 class ControlWidget: public QWidget
 {
   public:
 	// Ctor
-	ControlWidget (QWidget* parent, tinyio::Device&&);
+	ControlWidget (QWidget* parent, Application*, std::string const& device_serial);
 
 	/**
 	 * Enable/disable "hold" function (inhibit commiting
@@ -62,15 +65,32 @@ class ControlWidget: public QWidget
 
   private:
 	/**
+	 * Commit changes made to the config, unless hold
+	 * is pressed or device is invalid.
+	 */
+	void
+	commit();
+
+	/**
 	 * Gets called periodically.
 	 */
 	void
 	timeout();
 
+	/**
+	 * Gets called periodically for reconnecting a device.
+	 */
+	void
+	reconnect();
+
   private:
-	tinyio::Device						_device;
+	Application*						_application;
+	std::string							_device_serial;
+	tinyio::DeviceConfig				_device_config;
+	Unique<tinyio::Device>				_device;
 	std::array<Unique<PinWidget>, 24>	_pin_widgets;
 	Unique<QTimer>						_refresh_timer;
+	Unique<QTimer>						_reconnect_timer;
 	// If true, exceptions are silenced:
 	bool								_failsafe		= false;
 	bool								_hold_enabled	= false;

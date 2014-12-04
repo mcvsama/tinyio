@@ -47,10 +47,7 @@ DeviceManager::find_devices() const
 		}
 		catch (libusb::StatusException const& e)
 		{
-			std::cerr << "USB bus scan error: " << e.what() << std::endl;
-			// The only serious problem that should be forwarded:
-			if (e.status() == LIBUSB_ERROR_NO_MEM)
-				std::throw_with_nested (Exception ("USB search failure"));
+			rethrow_if_serious (e);
 		}
 	}
 
@@ -67,6 +64,36 @@ DeviceManager::find_by_address (uint8_t address) const
 		return DeviceInfo (*device_descriptor);
 	else
 		return { };
+}
+
+
+Optional<DeviceInfo>
+DeviceManager::find_by_serial (std::string const& serial) const
+{
+	for (auto const& dev_info: find_devices())
+	{
+		try {
+			auto device = dev_info.open();
+			if (device.serial_number() == serial)
+				return dev_info;
+		}
+		catch (libusb::StatusException const& e)
+		{
+			rethrow_if_serious (e);
+		}
+	}
+
+	return { };
+}
+
+
+void
+DeviceManager::rethrow_if_serious (libusb::StatusException const& e)
+{
+	std::cerr << "USB bus scan error: " << e.what() << std::endl;
+	// The only serious problem that should be forwarded:
+	if (e.status() == LIBUSB_ERROR_NO_MEM)
+		std::throw_with_nested (Exception ("USB search failure"));
 }
 
 } // namespace tinyio

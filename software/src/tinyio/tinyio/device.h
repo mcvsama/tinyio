@@ -18,23 +18,17 @@
 #include <libusbcc/libusbcc.h>
 #include <boost/optional.hpp>
 
+// Local:
+#include "device_config.h"
+
 
 namespace tinyio {
-
-enum PinDirection {
-	Input	= 0, // Binary match to protocol requests.
-	Output	= 1,
-};
-
 
 /**
  * Represents open state of a TinyIO device.
  */
 class Device
 {
-  public:
-	static constexpr std::size_t	kPinsCount = 24;
-
   public:
 	Device (libusb::Device&&);
 
@@ -49,6 +43,12 @@ class Device
 	operator= (Device&&) = default;
 
 	/**
+	 * Return true if device is connected/valid.
+	 */
+	bool
+	good();
+
+	/**
 	 * Return device version as string.
 	 */
 	std::string
@@ -61,60 +61,21 @@ class Device
 	serial_number() const;
 
 	/**
-	 * Reset device to default state: set all pins as inputs and commit().
-	 */
-	void
-	reset();
-
-	/**
-	 * Configure given pin.
-	 * Nothing is done until commit() is called.
-	 */
-	void
-	configure_pin (uint8_t pin, PinDirection);
-
-	/**
-	 * Return configured pin direction.
-	 */
-	PinDirection
-	get_pin_direction (uint8_t pin) const;
-
-	/**
-	 * Set given pin output level.
-	 * Nothing is done until commit() is called.
-	 */
-	void
-	set_pin_level (uint8_t pin, bool logic_level);
-
-	/**
-	 * Return configured pin level (might be different than
-	 * actual pin level, eg. in input+pull-up configuration).
-	 */
-	bool
-	get_pin_level (uint8_t pin) const;
-
-	/**
-	 * Set pin logic level to the opposite.
-	 */
-	void
-	flip_pin_level (uint8_t pin);
-
-	/**
 	 * Commit changes.
 	 */
 	void
-	commit();
+	commit (DeviceConfig const&, bool force = false);
 
 	/**
 	 * Get all pin directions.
 	 */
-	std::array<PinDirection, kPinsCount>
+	std::array<PinDirection, DeviceConfig::kPinsCount>
 	get_pin_directions();
 
 	/**
 	 * Get all pin levels.
 	 */
-	std::array<bool, kPinsCount>
+	std::array<bool, DeviceConfig::kPinsCount>
 	get_pin_levels();
 
   private:
@@ -126,13 +87,13 @@ class Device
 	 */
 	template<class T>
 		static std::vector<uint8_t>
-		get_mask (std::array<T, kPinsCount> const& bit_array);
+		get_mask (std::array<T, DeviceConfig::kPinsCount> const& bit_array);
 
 	/**
 	 * Return array of bits obtained from the vector sent
 	 * by device. Middle-byte bits are swapped (again).
 	 */
-	static std::array<bool, kPinsCount>
+	static std::array<bool, DeviceConfig::kPinsCount>
 	get_bits (std::vector<uint8_t> const& bytes);
 
 	/**
@@ -142,11 +103,8 @@ class Device
 	swap_bits (uint8_t&);
 
   private:
-	libusb::Device							_usb_device;
-	std::array<PinDirection, kPinsCount>	_pin_directions;
-	bool									_pin_directions_changed	= false;
-	std::array<bool, kPinsCount>			_pin_levels;
-	bool									_pin_levels_changed		= false;
+	libusb::Device		_usb_device;
+	DeviceConfig		_config;
 };
 
 } // namespace tinyio

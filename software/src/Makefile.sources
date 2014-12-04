@@ -11,6 +11,7 @@ TINYIO_SOURCES += $(patsubst %,lib/libusbcc/src/%,$(MULABS_LIBUSBCC_SOURCES))
 TINYIO_HEADERS += tinyio/control_request.h
 TINYIO_HEADERS += tinyio/tinyio/exception.h
 TINYIO_HEADERS += tinyio/tinyio/device.h
+TINYIO_HEADERS += tinyio/tinyio/device_config.h
 TINYIO_HEADERS += tinyio/tinyio/device_info.h
 TINYIO_HEADERS += tinyio/tinyio/device_manager.h
 TINYIO_HEADERS += tinyio/gui/application.h
@@ -25,6 +26,7 @@ TINYIO_MOCHDRS += tinyio/gui/pin_widget.h
 
 TINYIO_SOURCES += tinyio/tinyio-gui.cc
 TINYIO_SOURCES += tinyio/tinyio/device.cc
+TINYIO_SOURCES += tinyio/tinyio/device_config.cc
 TINYIO_SOURCES += tinyio/tinyio/device_info.cc
 TINYIO_SOURCES += tinyio/tinyio/device_manager.cc
 TINYIO_SOURCES += tinyio/gui/application.cc

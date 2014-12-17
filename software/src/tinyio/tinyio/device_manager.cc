@@ -40,9 +40,7 @@ DeviceManager::find_devices() const
 				libusb::Device device = descriptor.open();
 
 				if (device.manufacturer() == kTinyIOManufacturer && device.product() == kTinyIOProduct)
-				{
 					result.emplace_back (descriptor);
-				}
 			}
 		}
 		catch (libusb::StatusException const& e)

@@ -145,6 +145,8 @@ ControlWidget::reconnect()
 	try {
 		if (!_device || !_device->good())
 		{
+			setEnabled (false);
+
 			auto device_info = _application->device_manager()->find_by_serial (_device_serial);
 
 			if (device_info)
@@ -154,6 +156,8 @@ ControlWidget::reconnect()
 				_failsafe = false;
 			}
 		}
+		else if (_device->good())
+			setEnabled (true);
 	}
 	catch (...)
 	{

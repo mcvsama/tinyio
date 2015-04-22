@@ -25,9 +25,8 @@ prepare_button (QPushButton* button)
 {
 	QFont font = button->font();
 	int h = font.pixelSize();
-	if (h == -1)
-		h = font.pointSize();
-	button->setFixedHeight (2 * h);
+	if (h != -1)
+		button->setFixedHeight (2 * h);
 }
 
 } // namespace tinyiogui
